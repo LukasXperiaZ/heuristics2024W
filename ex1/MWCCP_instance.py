@@ -64,4 +64,18 @@ class MWCCPSolution(VectorSolution):
         pass
 
     def check(self):
+        """
+        Check if valid solution.
+
+        :raises ValueError: if a problem is detected
+        """
+        for (v_1, v_2) in self.inst.C:
+            pos_v_1 = np.where(self.x == v_1)[0][0]
+            pos_v_2 = np.where(self.x == v_2)[0][0]
+            if pos_v_1 > pos_v_2:
+                raise ValueError("Constraint (" + str(v_1) + "," + str(v_2) + ") is violated for the solution: " + str(self.x))
+
+
+        super().check()
+
         pass

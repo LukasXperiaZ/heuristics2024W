@@ -1,13 +1,29 @@
+import unittest
+
 from pymhlib.demos.graph_coloring import GCSolution
 from pymhlib.permutation_solution import PermutationSolution
 
-from ex1.MWCCP_instance import MWCCPSolution
+from ex1.MWCCP_instance import MWCCPSolution, MWCCPInstance
 from ex1.read_instance import read_instance
 
-if __name__ == '__main__':
-    mwccp_instance = read_instance("../data/test_instances/MCInstances/test")
-    print(mwccp_instance)
+class TestCases(unittest.TestCase):
 
-    mwccp_solution = MWCCPSolution(mwccp_instance)
-    obj_value = mwccp_solution.calc_objective()
-    print(obj_value)
+    mwccp_instance: MWCCPInstance
+
+    def setUp(self):
+        self.mwccp_instance = read_instance("../data/test_instances/MCInstances/test")
+        print(self.mwccp_instance)
+
+    def test_loading_and_objective_function(self):
+        mwccp_solution = MWCCPSolution(self.mwccp_instance)
+        obj_value = mwccp_solution.calc_objective()
+        print(obj_value)
+        assert(obj_value == 51)
+
+    def test_check(self):
+        mwccp_solution = MWCCPSolution(self.mwccp_instance)
+        mwccp_solution.x[::-1].sort()
+        print(mwccp_solution.x)
+
+        self.assertRaises(ValueError, mwccp_solution.check)
+
