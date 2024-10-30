@@ -17,7 +17,7 @@ class TestCases(unittest.TestCase):
     def test_loading_and_objective_function(self):
         mwccp_solution = MWCCPSolution(self.mwccp_instance)
         obj_value = mwccp_solution.calc_objective()
-        print(obj_value)
+        print("Obj value: " + str(obj_value))
         assert(obj_value == 51)
 
     def test_check(self):
@@ -26,4 +26,20 @@ class TestCases(unittest.TestCase):
         print(mwccp_solution.x)
 
         self.assertRaises(ValueError, mwccp_solution.check)
+
+    def test_deterministic_construction_heuristic_simple(self):
+        mwccp_solution = MWCCPSolution(self.mwccp_instance)
+        mwccp_solution.deterministic_construction_heuristic()
+        mwccp_solution.check()
+        obj_value = mwccp_solution.calc_objective()
+        print("Obj value: " + str(obj_value))
+
+    def test_deterministic_construction_heuristic_complicated(self):
+        mwccp_instance = read_instance("../data/test_instances/MCInstances/test_1")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        mwccp_solution.deterministic_construction_heuristic()
+        mwccp_solution.check()
+        obj_value = mwccp_solution.calc_objective()
+        print("Obj value: " + str(obj_value))
+
 
