@@ -38,8 +38,7 @@ class MWCCPSolution(VectorSolution):
     def __init__(self, inst: MWCCPInstance):
         super().__init__(len(inst.V), inst=inst)
 
-        for i in range(self.x.size):
-            self.x[i] = self.inst.V[i]
+        self.initialize(None)
 
     def copy(self):
         sol = MWCCPSolution(self.inst)
@@ -60,8 +59,14 @@ class MWCCPSolution(VectorSolution):
                         value += w + w_
         return value
 
-    def initialize(self, k):
-        pass
+    def initialize(self, _k):
+        """
+        Initialize the solution vector with the vertices from v in ascending order.
+        :param _k:
+        :return:
+        """
+        for i in range(self.x.size):
+            self.x[i] = self.inst.V[i]
 
     def check(self):
         """
