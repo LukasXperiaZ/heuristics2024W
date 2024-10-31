@@ -94,13 +94,19 @@ class MWCCPSolution(VectorSolution):
 
     def deterministic_construction_heuristic(self):
         self.initialize(-1)
+        V_rem = self.inst.V.copy()
         u_i = 1
         while u_i <= len(self.inst.U):
             # Get the vertex with maximum weight to the vertical counterpart u_i
-            v_i = self.get_max_weight_vertex(u_i)
+            v_i = self.get_max_weight_vertex(V_rem, u_i)
+
+            if not v_i:
+                # If there is no vertex with an edge to u_i, choose the next vertex of V_rem
+                v_i = V_rem[0]
 
             # Add v_i to the current position
             self.x[u_i - 1] = v_i
+            V_rem.remove(v_i)
 
             # While v_i violates a constraint of the form (v_i, v_j)
             violated_constraints = self.get_violated_constraints()
@@ -113,11 +119,11 @@ class MWCCPSolution(VectorSolution):
 
             u_i += 1
 
-    def get_max_weight_vertex(self, u_i):
+    def get_max_weight_vertex(self, V_rem, u_i):
         best_v = None
         best_w = 0
         for (u, v, w) in self.inst.E:
-            if u_i == u:
+            if u_i == u and v in V_rem:
                 if w > best_w:
                     best_w = w
                     best_v = v
