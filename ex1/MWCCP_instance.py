@@ -118,6 +118,8 @@ class MWCCPSolution(VectorSolution):
                 self.resolve_constraint(x_temp, v_i, v_j)
 
                 violated_constraints.remove((_, v_j))
+                # check, if other constraints could also be resolved
+                self.remove_resolved_constraints(x_temp, violated_constraints)
 
             u_i += 1
 
@@ -158,3 +160,8 @@ class MWCCPSolution(VectorSolution):
 
         # insert v_i at the position of v_j and move v_j and all other elements to the right.
         x_temp.insert(pos_v_j, v_i)
+
+    def remove_resolved_constraints(self, x_temp, violated_constraints):
+        for (v_1, v_2) in violated_constraints:
+            if x_temp.index(v_1) < x_temp.index(v_2):
+                violated_constraints.remove((v_1, v_2))

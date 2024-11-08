@@ -59,3 +59,12 @@ class TestCases(unittest.TestCase):
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
 
+    def test_deterministic_construction_heuristic_large(self):
+        # Also takes long (around TODO sec)
+        mwccp_instance = read_instance("../data/test_instances/MCInstances/large/inst_1000_60_00001")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        mwccp_solution.deterministic_construction_heuristic()
+        mwccp_solution.check()
+        obj_value = mwccp_solution.calc_objective()
+        print("Obj value: " + str(obj_value))
+
