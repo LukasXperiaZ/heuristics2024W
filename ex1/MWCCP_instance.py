@@ -1,9 +1,7 @@
 import random
-import time
 
 import numpy as np
 from pymhlib.solution import VectorSolution
-from itertools import combinations
 
 
 class MWCCPInstance:
