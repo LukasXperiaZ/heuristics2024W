@@ -81,16 +81,22 @@ class MWCCPSolution(VectorSolution):
         pos_dict = {v: idx for idx, v in enumerate(self.x)}
 
         value = 0
+        iteration = 1
+        number_of_combinations = len(self.inst.E)*len(self.inst.E)
         # Loop over unique pairs of edges (u, v, w) and (u_, v_, w_)
-        for (u, v, w), (u_, v_, w_) in combinations(self.inst.E, 2):
-            if u < u_:
-                # Retrieve precomputed positions
-                pos_v = pos_dict.get(v)
-                pos_v_ = pos_dict.get(v_)
+        for (u, v, w) in self.inst.E:
+            for (u_, v_, w_) in self.inst.E:
+                if u < u_:
+                    if iteration % 100000000 == 0:
+                        print("Iteration: " + str(iteration) + " of " + str(number_of_combinations) + " (" + str(round(100 * (iteration/number_of_combinations), 2)) + "%)")
+                    # Retrieve precomputed positions
+                    pos_v = pos_dict.get(v)
+                    pos_v_ = pos_dict.get(v_)
 
-                # Check the positions and update value
-                if pos_v is not None and pos_v_ is not None and pos_v > pos_v_:
-                    value += w + w_
+                    # Check the positions and update value
+                    if pos_v > pos_v_:
+                        value += w + w_
+                iteration += 1
         return value
 
     def initialize(self, k):
