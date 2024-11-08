@@ -6,7 +6,7 @@ from pymhlib.permutation_solution import PermutationSolution
 from ex1.MWCCP_instance import MWCCPSolution, MWCCPInstance
 from ex1.read_instance import read_instance
 
-class TestCases(unittest.TestCase):
+class Basics(unittest.TestCase):
 
     mwccp_instance: MWCCPInstance
 
@@ -27,8 +27,11 @@ class TestCases(unittest.TestCase):
 
         self.assertRaises(ValueError, mwccp_solution.check)
 
+class DCH(unittest.TestCase):
+
     def test_deterministic_construction_heuristic_simple(self):
-        mwccp_solution = MWCCPSolution(self.mwccp_instance)
+        mwccp_instance = read_instance("../data/test_instances/MCInstances/test")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.deterministic_construction_heuristic()
         mwccp_solution.check()
         obj_value = mwccp_solution.calc_objective()
@@ -68,3 +71,38 @@ class TestCases(unittest.TestCase):
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
 
+class RCH(unittest.TestCase):
+
+    def test_randomized_construction_heuristic_simple(self):
+        mwccp_instance = read_instance("../data/test_instances/MCInstances/test")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        mwccp_solution.randomized_construction_heuristic()
+        mwccp_solution.check()
+        obj_value = mwccp_solution.calc_objective()
+        print("Solution: " + str(mwccp_solution.x))
+        print("Obj value: " + str(obj_value))
+
+    def test_randomized_construction_heuristic_complicated(self):
+        mwccp_instance = read_instance("../data/test_instances/MCInstances/test_1")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        mwccp_solution.randomized_construction_heuristic()
+        mwccp_solution.check()
+        obj_value = mwccp_solution.calc_objective()
+        print("Obj value: " + str(obj_value))
+        # TODO error: Vertex x is not in the current solution
+
+    def test_randomized_construction_heuristic_small(self):
+        mwccp_instance = read_instance("../data/test_instances/MCInstances/small/inst_50_4_00001")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        mwccp_solution.randomized_construction_heuristic()
+        mwccp_solution.check()
+        obj_value = mwccp_solution.calc_objective()
+        print("Obj value: " + str(obj_value))
+
+    def test_randomized_construction_heuristic_medium(self):
+        mwccp_instance = read_instance("../data/test_instances/MCInstances/medium/inst_200_20_00001")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        mwccp_solution.randomized_construction_heuristic()
+        mwccp_solution.check()
+        obj_value = mwccp_solution.calc_objective()
+        print("Obj value: " + str(obj_value))

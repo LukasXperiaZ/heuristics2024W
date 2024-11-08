@@ -1,4 +1,5 @@
 import random
+import time
 
 import numpy as np
 from pymhlib.solution import VectorSolution
@@ -33,6 +34,8 @@ class MWCCPInstance:
         # Convert the list of edges E into an adjacency matrix
         self.adj_matrix = self.create_bipartite_adjacency_matrix()
 
+        self.edges_from_u = self.create_edges_from_u()
+
     def create_bipartite_adjacency_matrix(self):
         # |U| = |V| = n
         n = len(self.U)
@@ -54,6 +57,15 @@ class MWCCPInstance:
                 adj_matrix[pos_u, pos_v] = w
 
         return adj_matrix
+
+    def create_edges_from_u(self):
+        edges_from_u = {}
+
+        for (u, v, w) in self.E:
+            if not u in edges_from_u:
+                edges_from_u[u] = []
+            edges_from_u[u].append((v, w))
+        return edges_from_u
 
 
 class MWCCPSolution(VectorSolution):
@@ -85,18 +97,22 @@ class MWCCPSolution(VectorSolution):
         number_of_combinations = len(self.inst.E)*len(self.inst.E)
         # Loop over unique pairs of edges (u, v, w) and (u_, v_, w_)
         for (u, v, w) in self.inst.E:
-            for (u_, v_, w_) in self.inst.E:
-                if u < u_:
-                    if iteration % 100000000 == 0:
-                        print("Iteration: " + str(iteration) + " of " + str(number_of_combinations) + " (" + str(round(100 * (iteration/number_of_combinations), 2)) + "%)")
-                    # Retrieve precomputed positions
-                    pos_v = pos_dict.get(v)
-                    pos_v_ = pos_dict.get(v_)
+            # Just iterate over u_ > u
+            for u_ in range(u, len(self.inst.E)):
+               # Check if there are any edges going from u_ to a vertex v_
+                if u_ in self.inst.edges_from_u:
+                    # Iterate over all edges that go from u_ to a vertex v_
+                    for (v_, w_) in self.inst.edges_from_u[u_]:
+                        if iteration % 100000000 == 0:
+                            print("Iteration: " + str(iteration) + " of " + str(number_of_combinations) + " (" + str(round(100 * (iteration/number_of_combinations), 2)) + "%)")
+                        # Retrieve precomputed positions
+                        pos_v = pos_dict.get(v)
+                        pos_v_ = pos_dict.get(v_)
 
-                    # Check the positions and update value
-                    if pos_v > pos_v_:
-                        value += w + w_
-                iteration += 1
+                        # Check the positions and update value
+                        if pos_v > pos_v_:
+                            value += w + w_
+                        iteration += 1
         return value
 
     def initialize(self, k):
@@ -166,16 +182,20 @@ class MWCCPSolution(VectorSolution):
         self.x = np.array(x_temp)
 
     def randomized_construction_heuristic(self):
+        # TODO not tested yet!!!
         self.initialize(-1)
         x_temp : []
         x_temp = self.x.tolist()
         V_rem = self.inst.V.copy()
         # -- Get a list of remaining elements that need a partner
         U_ = list(range(1, len(V_rem) + 1))
+        # seed the randomness with the current time
         # --
         while U_:
             # -- Get a random element u_i from U_
             u_i = random.choice(U_)
+            # remove u_i from U_
+            U_.remove(u_i)
             # --
 
             # Get the vertex with maximum weight to the vertical counterpart u_i
@@ -192,13 +212,11 @@ class MWCCPSolution(VectorSolution):
             # While v_i violates a constraint of the form (v_i, v_j)
             violated_constraints = self.get_violated_constraints(x_temp)
             while violated_constraints:
-                _, v_j = violated_constraints[0]
+                v_i, v_j = violated_constraints[0]
                 # Move v_i at the position of v_j and push v_j and its successors to the right
-                self.resolve_constraint(x_temp, v_i, v_j)
+                self.resolve_constraint(x_temp, v_i, v_j) # TODO does not work for the randomized version
 
-                violated_constraints.remove((_, v_j))
-                # check, if other constraints could also be resolved
-                self.remove_resolved_constraints(x_temp, violated_constraints)
+                violated_constraints = self.get_violated_constraints(x_temp)
 
             u_i += 1
 
@@ -233,7 +251,7 @@ class MWCCPSolution(VectorSolution):
         pos_v_i = x_temp.index(v_i)
         pos_v_j = x_temp.index(v_j)
 
-        # remove v_i, i.e. the last element
+        # remove v_i
         x_temp.remove(v_i)
 
         # insert v_i at the position of v_j and move v_j and all other elements to the right.
