@@ -180,7 +180,6 @@ class MWCCPSolution(VectorSolution):
         self.x = np.array(x_temp)
 
     def randomized_construction_heuristic(self):
-        # TODO not tested yet!!!
         self.initialize(-1)
         x_temp : []
         x_temp = self.x.tolist()
@@ -192,8 +191,6 @@ class MWCCPSolution(VectorSolution):
         while U_:
             # -- Get a random element u_i from U_
             u_i = random.choice(U_)
-            # remove u_i from U_
-            U_.remove(u_i)
             # --
 
             # Get the vertex with maximum weight to the vertical counterpart u_i
@@ -212,11 +209,13 @@ class MWCCPSolution(VectorSolution):
             while violated_constraints:
                 v_i, v_j = violated_constraints[0]
                 # Move v_i at the position of v_j and push v_j and its successors to the right
-                self.resolve_constraint(x_temp, v_i, v_j) # TODO does not work for the randomized version
+                self.resolve_constraint(x_temp, v_i, v_j)
 
                 violated_constraints = self.get_violated_constraints(x_temp)
 
             u_i += 1
+            # Update U_ (also in case items were moved because of violations of constraints)
+            U_ = self.get_remaining_vertices_of_U(x_temp)
 
         self.x = np.array(x_temp)
 
@@ -259,3 +258,10 @@ class MWCCPSolution(VectorSolution):
         for (v_1, v_2) in violated_constraints:
             if x_temp.index(v_1) < x_temp.index(v_2):
                 violated_constraints.remove((v_1, v_2))
+
+    def get_remaining_vertices_of_U(self, x_temp):
+        U_ = []
+        for i in range(len(x_temp)):
+            if x_temp[i] == -1:
+                U_.append(i+1)
+        return U_

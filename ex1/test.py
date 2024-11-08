@@ -35,6 +35,7 @@ class DCH(unittest.TestCase):
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.deterministic_construction_heuristic()
         mwccp_solution.check()
+        print("Solution: " + str(mwccp_solution.x))
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
 
@@ -43,7 +44,9 @@ class DCH(unittest.TestCase):
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.deterministic_construction_heuristic()
         mwccp_solution.check()
+        print("Solution: " + str(mwccp_solution.x))
         obj_value = mwccp_solution.calc_objective()
+        assert(obj_value == 28)
         print("Obj value: " + str(obj_value))
 
     def test_deterministic_construction_heuristic_small(self):
@@ -51,6 +54,7 @@ class DCH(unittest.TestCase):
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.deterministic_construction_heuristic()
         mwccp_solution.check()
+        print("Solution: " + str(mwccp_solution.x))
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
 
@@ -59,6 +63,7 @@ class DCH(unittest.TestCase):
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.deterministic_construction_heuristic()
         mwccp_solution.check()
+        print("Solution: " + str(mwccp_solution.x))
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
 
@@ -67,6 +72,7 @@ class DCH(unittest.TestCase):
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.deterministic_construction_heuristic()
         mwccp_solution.check()
+        print("Solution: " + str(mwccp_solution.x))
         # TODO This takes looong
         print("Starting calc_objective()")
         obj_value = 1#mwccp_solution.calc_objective()
@@ -80,8 +86,8 @@ class RCH(unittest.TestCase):
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.randomized_construction_heuristic()
         mwccp_solution.check()
-        obj_value = mwccp_solution.calc_objective()
         print("Solution: " + str(mwccp_solution.x))
+        obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
 
     def test_randomized_construction_heuristic_complicated(self):
@@ -89,22 +95,24 @@ class RCH(unittest.TestCase):
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.randomized_construction_heuristic()
         mwccp_solution.check()
+        print("Solution: " + str(mwccp_solution.x))
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
-        # TODO error: Vertex x is not in the current solution
 
     def test_randomized_construction_heuristic_small(self):
-        mwccp_instance = read_instance("../data/test_instances/MCInstances/small/inst_50_4_00001")
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.randomized_construction_heuristic()
         mwccp_solution.check()
+        print("Solution: " + str(mwccp_solution.x))
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
 
     def test_randomized_construction_heuristic_medium(self):
-        mwccp_instance = read_instance("../data/test_instances/MCInstances/medium/inst_200_20_00001")
+        mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.randomized_construction_heuristic()
         mwccp_solution.check()
+        print("Solution: " + str(mwccp_solution.x))
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
