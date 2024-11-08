@@ -94,6 +94,8 @@ class MWCCPSolution(VectorSolution):
 
     def deterministic_construction_heuristic(self):
         self.initialize(-1)
+        x_temp : []
+        x_temp = self.x.tolist()
         V_rem = self.inst.V.copy()
         u_i = 1
         while u_i <= len(self.inst.U):
@@ -105,19 +107,21 @@ class MWCCPSolution(VectorSolution):
                 v_i = V_rem[0]
 
             # Add v_i to the current position
-            self.x[u_i - 1] = v_i
+            x_temp[u_i - 1] = v_i
             V_rem.remove(v_i)
 
             # While v_i violates a constraint of the form (v_i, v_j)
-            violated_constraints = self.get_violated_constraints()
+            violated_constraints = self.get_violated_constraints(x_temp)
             while violated_constraints:
                 _, v_j = violated_constraints[0]
                 # Move v_i at the position of v_j and push v_j and its successors to the right
-                self.resolve_constraint(v_i, v_j)
+                self.resolve_constraint(x_temp, v_i, v_j)
 
-                violated_constraints = self.get_violated_constraints()
+                violated_constraints.remove((_, v_j))
 
             u_i += 1
+
+        self.x = np.array(x_temp)
 
     def get_max_weight_vertex(self, V_rem, u_i):
         best_v = None
@@ -130,30 +134,27 @@ class MWCCPSolution(VectorSolution):
 
         return best_v
 
-    def get_violated_constraints(self):
+    def get_violated_constraints(self, x_temp):
         violated_constraints = []
 
         for (v_1, v_2) in self.inst.C:
-            pos_v_1 = np.where(self.x == v_1)[0]
-            pos_v_2 = np.where(self.x == v_2)[0]
-            if len(pos_v_1) > 0 and len(pos_v_2) > 0:
-                pos_v_1 = np.where(self.x == v_1)[0][0]
-                pos_v_2 = np.where(self.x == v_2)[0][0]
+
+            if v_1 in x_temp and v_2 in x_temp:
+                pos_v_1 = x_temp.index(v_1)
+                pos_v_2 = x_temp.index(v_2)
                 # Both vertices have been set, check the constraint!
                 if pos_v_1 > pos_v_2:
                     violated_constraints.append((v_1, v_2))
 
         return violated_constraints
 
-    def resolve_constraint(self, v_i, v_j):
-        pos_v_i = np.where(self.x == v_i)[0][0] # position of the last element
-        pos_v_j = np.where(self.x == v_j)[0][0]
+    def resolve_constraint(self, x_temp, v_i, v_j):
+        # Move v_i at the position of v_j and push v_j and its successors to the right
+        pos_v_i = x_temp.index(v_i)
+        pos_v_j = x_temp.index(v_j)
 
-        # Push v_j and its successors to the right
-        current = pos_v_i - 1
-        while current >= pos_v_j:
-            self.x[current + 1] = self.x[current]
-            current -= 1
+        # remove v_i, i.e. the last element
+        x_temp.remove(v_i)
 
-        # Move v_i at the position of v_j
-        self.x[pos_v_j] = v_i
+        # insert v_i at the position of v_j and move v_j and all other elements to the right.
+        x_temp.insert(pos_v_j, v_i)
