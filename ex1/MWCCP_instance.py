@@ -1,5 +1,8 @@
+import random
+
 import numpy as np
 from pymhlib.solution import VectorSolution
+from itertools import combinations
 
 
 class MWCCPInstance:
@@ -27,6 +30,31 @@ class MWCCPInstance:
         self.C = C
         self.E = E
 
+        # Convert the list of edges E into an adjacency matrix
+        self.adj_matrix = self.create_bipartite_adjacency_matrix()
+
+    def create_bipartite_adjacency_matrix(self):
+        # |U| = |V| = n
+        n = len(self.U)
+
+        # Create an n x n matrix initialized with zeros
+        adj_matrix = np.zeros((n, n), dtype=int)
+
+        # Create a dictionary for fast lookup of vertex indices
+        pos_U = {v: i for i, v in enumerate(self.U)}  # Position of U vertices
+        pos_V = {v: i for i, v in enumerate(self.V)}  # Position of V vertices
+
+        # Iterate through the edges (u, v, w) in E
+        for (u, v, w) in self.E:
+            if u in pos_U and v in pos_V:  # Ensure u is in U and v is in V
+                pos_u = pos_U[u]  # Get index of u in U
+                pos_v = pos_V[v]  # Get index of v in V
+
+                # Populate the adjacency matrix
+                adj_matrix[pos_u, pos_v] = w
+
+        return adj_matrix
+
 
 class MWCCPSolution(VectorSolution):
     """
@@ -49,14 +77,20 @@ class MWCCPSolution(VectorSolution):
         super().copy_from(other)
 
     def calc_objective(self):
+        # Precompute positions of each element in self.x
+        pos_dict = {v: idx for idx, v in enumerate(self.x)}
+
         value = 0
-        for (u, v, w) in self.inst.E:
-            for (u_, v_, w_) in self.inst.E:
-                if u < u_:
-                    pos_v = np.where(self.x == v)[0][0]
-                    pos_v_ = np.where(self.x == v_)[0][0]
-                    if pos_v > pos_v_:
-                        value += w + w_
+        # Loop over unique pairs of edges (u, v, w) and (u_, v_, w_)
+        for (u, v, w), (u_, v_, w_) in combinations(self.inst.E, 2):
+            if u < u_:
+                # Retrieve precomputed positions
+                pos_v = pos_dict.get(v)
+                pos_v_ = pos_dict.get(v_)
+
+                # Check the positions and update value
+                if pos_v is not None and pos_v_ is not None and pos_v > pos_v_:
+                    value += w + w_
         return value
 
     def initialize(self, k):
@@ -98,7 +132,46 @@ class MWCCPSolution(VectorSolution):
         x_temp = self.x.tolist()
         V_rem = self.inst.V.copy()
         u_i = 1
-        while u_i <= len(self.inst.U):
+        while u_i <= len(self.inst.U):  # iterates |U| times
+            # Get the vertex with maximum weight to the vertical counterpart u_i
+            v_i = self.get_max_weight_vertex(V_rem, u_i)     # O(|E|)
+
+            if not v_i:
+                # If there is no vertex with an edge to u_i, choose the next vertex of V_rem
+                v_i = V_rem[0]
+
+            # Add v_i to the current position
+            x_temp[u_i - 1] = v_i
+            V_rem.remove(v_i)
+
+            # While v_i violates a constraint of the form (v_i, v_j)
+            violated_constraints = self.get_violated_constraints(x_temp)    # O(|C|)
+            while violated_constraints:     # O(|violated_constraints| * |violated_constraints|)
+                _, v_j = violated_constraints[0]
+                # Move v_i at the position of v_j and push v_j and its successors to the right
+                self.resolve_constraint(x_temp, v_i, v_j)   # O(1)
+
+                violated_constraints.remove((_, v_j))
+                # check, if other constraints could also be resolved
+                self.remove_resolved_constraints(x_temp, violated_constraints) # O(|violated_constraints|)
+
+            u_i += 1
+
+        self.x = np.array(x_temp)
+
+    def randomized_construction_heuristic(self):
+        self.initialize(-1)
+        x_temp : []
+        x_temp = self.x.tolist()
+        V_rem = self.inst.V.copy()
+        # -- Get a list of remaining elements that need a partner
+        U_ = list(range(1, len(V_rem) + 1))
+        # --
+        while U_:
+            # -- Get a random element u_i from U_
+            u_i = random.choice(U_)
+            # --
+
             # Get the vertex with maximum weight to the vertical counterpart u_i
             v_i = self.get_max_weight_vertex(V_rem, u_i)
 
@@ -140,7 +213,6 @@ class MWCCPSolution(VectorSolution):
         violated_constraints = []
 
         for (v_1, v_2) in self.inst.C:
-
             if v_1 in x_temp and v_2 in x_temp:
                 pos_v_1 = x_temp.index(v_1)
                 pos_v_2 = x_temp.index(v_2)

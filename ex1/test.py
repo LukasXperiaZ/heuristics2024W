@@ -51,7 +51,6 @@ class TestCases(unittest.TestCase):
         print("Obj value: " + str(obj_value))
 
     def test_deterministic_construction_heuristic_medium(self):
-        # Takes a while (around 25 sec), I guess the heuristic is not the fastest one.
         mwccp_instance = read_instance("../data/test_instances/MCInstances/medium/inst_200_20_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.deterministic_construction_heuristic()
@@ -60,11 +59,12 @@ class TestCases(unittest.TestCase):
         print("Obj value: " + str(obj_value))
 
     def test_deterministic_construction_heuristic_large(self):
-        # Also takes long (around TODO sec)
         mwccp_instance = read_instance("../data/test_instances/MCInstances/large/inst_1000_60_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.deterministic_construction_heuristic()
         mwccp_solution.check()
+        # TODO This takes looong
+        print("Starting calc_objective()")
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
 
