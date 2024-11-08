@@ -96,7 +96,7 @@ class MWCCPSolution(VectorSolution):
         # Loop over unique pairs of edges (u, v, w) and (u_, v_, w_)
         for (u, v, w) in self.inst.E:
             # Just iterate over u_ > u
-            for u_ in range(u, len(self.inst.E)):
+            for u_ in range(u + 1, len(self.inst.E) + 1):
                # Check if there are any edges going from u_ to a vertex v_
                 if u_ in self.inst.edges_from_u:
                     # Iterate over all edges that go from u_ to a vertex v_
