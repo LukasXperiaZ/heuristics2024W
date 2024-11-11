@@ -1,6 +1,6 @@
 from networkx.classes import edges
 
-from ex1.MWCCP_instance import MWCCPInstance
+from ex1.MWCCP import MWCCPInstance
 
 
 def read_instance(path: str) -> MWCCPInstance:

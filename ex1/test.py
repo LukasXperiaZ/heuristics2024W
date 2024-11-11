@@ -1,9 +1,9 @@
 import unittest
 
-from pymhlib.demos.graph_coloring import GCSolution
-from pymhlib.permutation_solution import PermutationSolution
+import numpy as np
 
-from ex1.MWCCP_instance import MWCCPSolution, MWCCPInstance
+from ex1.MWCCP import MWCCPSolution, MWCCPInstance, MWCCPNeighborhoods
+from ex1.local_search import StepFunction
 from ex1.read_instance import read_instance
 
 
@@ -46,7 +46,7 @@ class DCH(unittest.TestCase):
         mwccp_solution.check()
         print("Solution: " + str(mwccp_solution.x))
         obj_value = mwccp_solution.calc_objective()
-        assert(obj_value == 28)
+        assert (obj_value == 28)
         print("Obj value: " + str(obj_value))
 
     def test_deterministic_construction_heuristic_small(self):
@@ -75,7 +75,7 @@ class DCH(unittest.TestCase):
         print("Solution: " + str(mwccp_solution.x))
         # TODO This takes looong
         print("Starting calc_objective()")
-        obj_value = 1#mwccp_solution.calc_objective()
+        obj_value = 1  # mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
 
 
@@ -116,3 +116,96 @@ class RCH(unittest.TestCase):
         print("Solution: " + str(mwccp_solution.x))
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
+
+
+class Neighborhoods(unittest.TestCase):
+
+    def test_get_neighbor_flip_two_adjacent_vertices_first_improvement(self):
+        mwccp_instance = read_instance("../data/test_instances/test")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        mwccp_solution.x = np.array([6, 7, 8, 9, 10])
+        mwccp_solution.check()
+        print("Solution: " + str(mwccp_solution.x))
+        obj_value = mwccp_solution.calc_objective()
+        print("Obj value: " + str(obj_value))
+        print("----------------------")
+
+        next_neighbor, next_obj = mwccp_solution.get_neighbor_flip_two_adjacent_vertices(mwccp_solution.x.tolist(),
+                                                                                         obj_value,
+                                                                                         StepFunction.first_improvement)
+        print("Next neighbor: " + str(next_neighbor))
+        print("Next objective: " + str(next_obj))
+        assert (next_neighbor[0] == 7)
+        assert (next_neighbor[1] == 6)
+        assert (next_obj == 39)
+
+    def test_get_neighbor_flip_two_adjacent_vertices_first_improvement_no_improvement_possible(self):
+        mwccp_instance = read_instance("../data/test_instances/test")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        mwccp_solution.deterministic_construction_heuristic()
+        mwccp_solution.check()
+        print("Solution: " + str(mwccp_solution.x))
+        obj_value = mwccp_solution.calc_objective()
+        print("Obj value: " + str(obj_value))
+
+        next_neighbor, next_obj = mwccp_solution.get_neighbor_flip_two_adjacent_vertices(mwccp_solution.x.tolist(),
+                                                                                         obj_value,
+                                                                                         StepFunction.first_improvement)
+        assert (next_neighbor[0] == 7)
+        assert (next_neighbor[1] == 8)
+        assert (next_obj == 0)
+
+    def test_get_neighbor_flip_two_adjacent_vertices_first_improvement_medium_instance(self):
+        mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00001")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        mwccp_solution.deterministic_construction_heuristic()
+        mwccp_solution.check()
+        print("Solution: " + str(mwccp_solution.x))
+        obj_value = mwccp_solution.calc_objective()
+        print("Obj value: " + str(obj_value))
+        print("----------------------")
+
+        next_neighbor, next_obj = mwccp_solution.get_neighbor_flip_two_adjacent_vertices(mwccp_solution.x.tolist(),
+                                                                                         obj_value,
+                                                                                         StepFunction.first_improvement)
+        print("Next neighbor: " + str(next_neighbor))
+        print("Next objective: " + str(next_obj))
+
+
+class LocalSearch(unittest.TestCase):
+
+    def test_local_search_simple_no_better_solution(self):
+        mwccp_instance = read_instance("../data/test_instances/test")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                        StepFunction.first_improvement, 1000)
+
+        print("----------------------")
+        print("Solution after local search: " + str(solution))
+        print("Objective value after local search: " + str(obj))
+        assert obj == 0
+
+    def test_local_search_medium_instance(self):
+        mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00001")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        mwccp_solution.deterministic_construction_heuristic()
+        mwccp_solution.check()
+        initial_obj_value = mwccp_solution.calc_objective()
+
+        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                        StepFunction.first_improvement, 1000)
+
+        print("----------------------")
+        print("Solution after local search: " + str(solution))
+        print("Objective value after local search: " + str(obj))
+        assert initial_obj_value > obj
+
+
+class VND(unittest.TestCase):
+
+    def test_VND(self):
+        mwccp_instance = read_instance("../data/test_instances/test")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        # vnd = GVNS(mwccp_solution)
+        # TODO

@@ -1,7 +1,15 @@
 import random
+from enum import Enum
 
 import numpy as np
 from pymhlib.solution import VectorSolution
+
+from ex1.local_search import StepFunction, LocalSearchSolution
+
+
+class MWCCPNeighborhoods(Enum):
+    flip_two_adjacent_vertices = 1
+    flip_two_vertices = 2
 
 
 class MWCCPInstance:
@@ -35,15 +43,29 @@ class MWCCPInstance:
         self.edges_from_u = self.create_edges_from_u()
 
     def create_bipartite_adjacency_matrix(self):
+        """
+        Has the form e.g.:
+
+               | v1 v2 .. .. vn
+            ---|--------------
+            u1 | 0  1
+            u2 | 0  0
+            .. |
+            .. |
+            un | 1  0        1
+
+        """
         # |U| = |V| = n
         n = len(self.U)
 
         # Create an n x n matrix initialized with zeros
-        adj_matrix = np.zeros((n, n), dtype=int)
+        # ( Note that we create a (n+1 + n+1) x (n+1) matrix since we leave the zero row and column empty.
+        #   Furthermore, the vertices v start from n+1, therefore the rows 1..n are empty)
+        adj_matrix = np.zeros(((n + 1) + (n + 1), n + 1), dtype=int)
 
         # Create a dictionary for fast lookup of vertex indices
-        pos_U = {v: i for i, v in enumerate(self.U)}  # Position of U vertices
-        pos_V = {v: i for i, v in enumerate(self.V)}  # Position of V vertices
+        pos_U = {u: i + 1 for i, u in enumerate(self.U)}  # Position of U vertices
+        pos_V = {v: i + 1 + n for i, v in enumerate(self.V)}  # Position of V vertices
 
         # Iterate through the edges (u, v, w) in E
         for (u, v, w) in self.E:
@@ -52,7 +74,7 @@ class MWCCPInstance:
                 pos_v = pos_V[v]  # Get index of v in V
 
                 # Populate the adjacency matrix
-                adj_matrix[pos_u, pos_v] = w
+                adj_matrix[pos_v, pos_u] = w
 
         return adj_matrix
 
@@ -66,7 +88,7 @@ class MWCCPInstance:
         return edges_from_u
 
 
-class MWCCPSolution(VectorSolution):
+class MWCCPSolution(VectorSolution, LocalSearchSolution):
     """
     Solution to a MWCCP instance.
     """
@@ -92,17 +114,18 @@ class MWCCPSolution(VectorSolution):
 
         value = 0
         iteration = 1
-        number_of_combinations = len(self.inst.E)*len(self.inst.E)
+        number_of_combinations = len(self.inst.E) * len(self.inst.E)
         # Loop over unique pairs of edges (u, v, w) and (u_, v_, w_)
         for (u, v, w) in self.inst.E:
             # Just iterate over u_ > u
             for u_ in range(u + 1, len(self.inst.E) + 1):
-               # Check if there are any edges going from u_ to a vertex v_
+                # Check if there are any edges going from u_ to a vertex v_
                 if u_ in self.inst.edges_from_u:
                     # Iterate over all edges that go from u_ to a vertex v_
                     for (v_, w_) in self.inst.edges_from_u[u_]:
                         if iteration % 100000000 == 0:
-                            print("Iteration: " + str(iteration) + " of " + str(number_of_combinations) + " (" + str(round(100 * (iteration/number_of_combinations), 2)) + "%)")
+                            print("Iteration: " + str(iteration) + " of " + str(number_of_combinations) + " (" + str(
+                                round(100 * (iteration / number_of_combinations), 2)) + "%)")
                         # Retrieve precomputed positions
                         pos_v = pos_dict.get(v)
                         pos_v_ = pos_dict.get(v_)
@@ -146,15 +169,119 @@ class MWCCPSolution(VectorSolution):
 
         super().check()
 
+    def get_neighbor(self, current_solution: [int], current_obj: int, neighborhood: MWCCPNeighborhoods,
+                     step_function: StepFunction) -> ([int], int):
+        if neighborhood == MWCCPNeighborhoods.flip_two_adjacent_vertices:
+            return self.get_neighbor_flip_two_adjacent_vertices(current_solution, current_obj, step_function)
+        elif neighborhood == MWCCPNeighborhoods.flip_two_vertices:
+            return self.get_neighbor_flip_two_vertices(current_solution, current_obj, step_function)
+        else:
+            raise ValueError("Neighborhood is not specified!")
+
+    def get_neighbor_flip_two_adjacent_vertices(self, current_solution: [int], current_obj: int,
+                                                step_function: StepFunction):
+        if step_function.first_improvement:
+            """
+            First improvement strategy
+            """
+            current_sol = current_solution.copy()
+            for i in range(len(current_solution) - 1):
+                next_neighbor, next_obj = self.flip_two_adjacent_vertices(current_obj, current_sol, i)
+                if next_obj < current_obj:
+                    return (next_neighbor, next_obj)
+            # no better solution was found, return the old one
+            return (current_solution, current_obj)
+
+    def flip_two_adjacent_vertices(self, obj_old, sol_old, i):
+        """
+        Get the objective value by using delta evaluation for the neighbor where two adjacent vertices were flipped.
+        When flipping two adjacent vertices v1, v2, only an edge from v1 and an edge from v2 can change with respect
+        to whether they intersect or do not intersect anymore. I.e., we can compute the new objective value with:
+            obj_old - obj_old_v1_v2 + obj_new_v2_v1
+        I.e. subtracting the objective value that the crossings of the edges going out from v1 and v2 yielded from the
+        old objective value and then adding the new value that the crossings of the new constellation of v2 and v1
+        yields.
+
+        :param sol_old: old solution vector
+        :param obj_old: old objective value
+        :param i: first position of the two flipped vertices
+        :return:  objective value using delta evaluation
+        """
+        next_neighbor = sol_old.copy()
+        # Flip two adjacent neighbors
+        next_neighbor[i] = sol_old[i + 1]
+        next_neighbor[i + 1] = sol_old[i]
+
+        # adj_matrix[v][u]
+        adj_matrix = self.inst.adj_matrix
+
+        v1 = sol_old[i]
+        v2 = sol_old[i+1]
+
+        # (v1, u, w)
+        edges_from_v1: [(int, int, int)] = []
+        for u in range(len(adj_matrix[v1])):
+            w = adj_matrix[v1][u]
+            if w > 0:
+                # Edge found
+                edges_from_v1.append((v1, u, w))
+
+        # (v2, u, w)
+        edges_from_v2: [(int, int, int)] = []
+        for u in range(len(adj_matrix[v2])):
+            w = adj_matrix[v2][u]
+            if w > 0:
+                # Edge found
+                edges_from_v2.append((v2, u, w))
+
+        obj_old_v1_v2 = 0
+        for (v1, u1, w1) in edges_from_v1:
+            for (v2, u2, w2) in edges_from_v2:
+                if u1 > u2:
+                    # The edges cross
+                    obj_old_v1_v2 += w1 + w2
+
+        obj_new_v2_v1 = 0
+        for (v2, u2, w2) in edges_from_v2:
+            for (v1, u1, w1) in edges_from_v1:
+                if u2 > u1:
+                    # The edges cross
+                    obj_new_v2_v1 += w2 + w1
+
+        new_obj_val = obj_old - obj_old_v1_v2 + obj_new_v2_v1
+
+        return (next_neighbor, new_obj_val)
+
+    def get_neighbor_flip_two_vertices(self, current_solution: [int], current_obj: int, step_function: StepFunction):
+        raise NotImplementedError
+
+    def run_local_search(self, neighborhood: MWCCPNeighborhoods, step_function: StepFunction, iterations: int):
+        # Get the initial solution from the DCH
+        self.deterministic_construction_heuristic()
+        self.check()
+        solution: [int] = self.x.tolist()
+        # Calculate the obj value of the initial solution
+        obj: int = self.calc_objective()
+        print("Initial solution: " + str(solution))
+        print("Initial obj value: " + str(obj))
+
+        for i in range(iterations):
+            (next_neighbor, next_obj) = self.get_neighbor(solution, obj, neighborhood, step_function)
+            if next_obj <= obj:
+                solution = next_neighbor
+                obj = next_obj
+
+        return solution, obj
+
     def deterministic_construction_heuristic(self):
         self.initialize(-1)
-        x_temp : []
+        x_temp: []
         x_temp = self.x.tolist()
         V_rem = self.inst.V.copy()
         u_i = 1
         while u_i <= len(self.inst.U):  # iterates |U| times
             # Get the vertex with maximum weight to the vertical counterpart u_i
-            v_i = self.get_max_weight_vertex(V_rem, u_i)     # O(|E|)
+            v_i = self.get_max_weight_vertex(V_rem, u_i)  # O(|E|)
 
             if not v_i:
                 # If there is no vertex with an edge to u_i, choose the next vertex of V_rem
@@ -165,15 +292,15 @@ class MWCCPSolution(VectorSolution):
             V_rem.remove(v_i)
 
             # While v_i violates a constraint of the form (v_i, v_j)
-            violated_constraints = self.get_violated_constraints(x_temp)    # O(|C|)
-            while violated_constraints:     # O(|violated_constraints| * |violated_constraints|)
+            violated_constraints = self.get_violated_constraints(x_temp)  # O(|C|)
+            while violated_constraints:  # O(|violated_constraints| * |violated_constraints|)
                 _, v_j = violated_constraints[0]
                 # Move v_i at the position of v_j and push v_j and its successors to the right
-                self.resolve_constraint(x_temp, v_i, v_j)   # O(1)
+                self.resolve_constraint(x_temp, v_i, v_j)  # O(1)
 
                 violated_constraints.remove((_, v_j))
                 # check, if other constraints could also be resolved
-                self.remove_resolved_constraints(x_temp, violated_constraints) # O(|violated_constraints|)
+                self.remove_resolved_constraints(x_temp, violated_constraints)  # O(|violated_constraints|)
 
             u_i += 1
 
@@ -181,7 +308,7 @@ class MWCCPSolution(VectorSolution):
 
     def randomized_construction_heuristic(self):
         self.initialize(-1)
-        x_temp : []
+        x_temp: []
         x_temp = self.x.tolist()
         V_rem = self.inst.V.copy()
         # -- Get a list of remaining elements that need a partner
@@ -263,5 +390,5 @@ class MWCCPSolution(VectorSolution):
         U_ = []
         for i in range(len(x_temp)):
             if x_temp[i] == -1:
-                U_.append(i+1)
+                U_.append(i + 1)
         return U_
