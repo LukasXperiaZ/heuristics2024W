@@ -31,6 +31,16 @@ class MWCCPInstance:
     C: [(int, int)]
     E: [(int, int, int)]
 
+    edges_from_u: dict[int, (int, int)]
+    edges_from_v: dict[int, (int, int)]
+
+    # precomputed values for the order of nodes.
+    # I.e. if node v1 is left of v2 then we can precompute the sum of the edges of v1 and v2 that intersect.
+    #       If v1 is right if v2, we can also precompute the sum.
+    #       ->  When we want to compute the objective value of a solution, we just go over every pair of vertices
+    #           and determine whether v1 is left or right of v2 and add the precomputed sum of intersecting edges.
+    pre_comp_val: dict[int, dict]
+
     def __init__(self, U, V, C, E):
         self.U = U
         self.V = V
@@ -40,7 +50,29 @@ class MWCCPInstance:
         # Convert the list of edges E into an adjacency matrix
         self.adj_matrix = self.create_bipartite_adjacency_matrix()
 
-        self.edges_from_u = self.create_edges_from_u()
+        self.create_edges_from_u_and_v()
+
+        self.pre_comp_val = self.precompute_values_of_pairs_of_vertices()
+
+
+    def precompute_values_of_pairs_of_vertices(self):
+        pre_comp_val: dict[int, dict] = {}
+
+        for v1 in self.V:
+            pre_comp_val[v1] = {}
+            for v2 in self.V:
+                if v1 != v2:
+                    pre_comp_val[v1][v2] = 0
+                    # Assume v1 is left of v2, compute the resulting value.
+                    # (Since we iterate over all pairs (v1 v2) in V, we get both combinations, e.g. (6,7) and (7,6)
+                    #   in the case of just two vertices)
+                    # Iterate over all pairs of edges adjacent to v1 and v2
+                    for (u1, w1) in self.edges_from_v[v1]:
+                        for (u2, w2) in self.edges_from_v[v2]:
+                            if u1 > u2:
+                                pre_comp_val[v1][v2] += w1 + w2
+
+        return pre_comp_val
 
     def create_bipartite_adjacency_matrix(self):
         """
@@ -78,14 +110,20 @@ class MWCCPInstance:
 
         return adj_matrix
 
-    def create_edges_from_u(self):
-        edges_from_u = {}
+    def create_edges_from_u_and_v(self):
+        self.edges_from_u = {}
+        self.edges_from_v = {}
 
         for (u, v, w) in self.E:
-            if not u in edges_from_u:
-                edges_from_u[u] = []
-            edges_from_u[u].append((v, w))
-        return edges_from_u
+            # add all edges that are adjacent to u
+            if not u in self.edges_from_u:
+                self.edges_from_u[u] = []
+            self.edges_from_u[u].append((v, w))
+
+            # add all edges that are adjacent to v
+            if not v in self.edges_from_v:
+                self.edges_from_v[v] = []
+            self.edges_from_v[v].append((u, w))
 
 
 class MWCCPSolution(VectorSolution, LocalSearchSolution):
@@ -108,7 +146,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
     def copy_from(self, other: 'MWCCPSolution'):
         super().copy_from(other)
 
-    def calc_objective(self):
+    def calc_objective_inefficient(self):
         # Precompute positions of each element in self.x
         pos_dict = {v: idx for idx, v in enumerate(self.x)}
 
@@ -135,6 +173,11 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                             value += w + w_
                         iteration += 1
         return value
+
+    def calc_objective(self):
+        # TODO use the precomputed values of pairs of vertices to efficiently compute the objective value
+        # in O(n^2) time (where n is the number of vertices) instead of O(m^2) time (where m is the number of edges)
+        pass
 
     def initialize(self, k):
         """
