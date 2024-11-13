@@ -175,9 +175,17 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         return value
 
     def calc_objective(self):
-        # TODO use the precomputed values of pairs of vertices to efficiently compute the objective value
-        # in O(n^2) time (where n is the number of vertices) instead of O(m^2) time (where m is the number of edges)
-        pass
+        value = 0
+        # Iterate over all pairs of vertices in the current solution(self.x)
+   	for i in range(len(self.x)):
+            v1 = self.x[i]
+            for j in range(i + 1, len(self.x)):
+                v2 = self.x[j]
+                # Determine the contribution based on the order in self.x
+                if v1 in self.inst.pre_comp_val and v2 in self.inst.pre_comp_val[v1]:
+                    value = value + self.inst.pre_comp_val[v1][v2]
+
+        return value
 
     def initialize(self, k):
         """
