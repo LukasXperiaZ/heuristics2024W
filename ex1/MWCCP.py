@@ -255,7 +255,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
     def check(self):
         """
-        Check if valid solution.
+        Check if self.x is a valid solution.
 
         :raises ValueError: if a problem is detected
         """
@@ -272,6 +272,26 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                     "Constraint (" + str(v_1) + "," + str(v_2) + ") is violated for the solution: " + str(self.x))
 
         super().check()
+
+    def is_valid_solution(self, solution: [int]):
+        """
+        Checks if the solution is valid.
+        :param solution:
+        :return:
+        """
+        # Check if every vertex of V is in the solution
+        for v in self.inst.V:
+            if v not in solution:
+                return False
+
+        # Check if all constraints are satisfied
+        for (v_1, v_2) in self.inst.C:
+            pos_v_1 = solution.index(v_1)
+            pos_v_2 = solution.index(v_2)
+            if pos_v_1 > pos_v_2:
+                return False
+
+        return True
 
     def get_neighbor(self, current_solution: [int], current_obj: int, neighborhood: MWCCPNeighborhoods,
                      step_function: StepFunction) -> ([int], int):
@@ -293,20 +313,40 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             current_sol = current_solution.copy()
             for i in range(len(current_solution) - 1):
                 next_neighbor, next_obj = self.flip_two_adjacent_vertices(current_obj, current_sol, i)
+
+                if not self.is_valid_solution(next_neighbor):
+                    # If the next neighbor violates some constraints, move to the next one
+                    continue
+
                 if next_obj < current_obj:
                     return (next_neighbor, next_obj)
-            # no better solution was found, return the old one
-            return (current_solution, current_obj)
+            # no better solution was found, return a bad objective value to indicate that the old solution is the
+            # global maximum
+            return (current_solution, (current_obj + 100) * 100)
+        elif step_function.best_improvement:
+            """
+            Best improvement strategy
+            """
+            # TODO
+            pass
+        elif step_function.random:
+            """
+            Random strategy
+            """
+            # TODO
+            pass
+        else:
+            raise ValueError("Step function is not specified!")
 
     def flip_two_adjacent_vertices(self, obj_old, sol_old, i):
         """
         Get the objective value by using delta evaluation for the neighbor where two adjacent vertices were flipped.
-        When flipping two adjacent vertices v1, v2, only an edge from v1 and an edge from v2 can change with respect
-        to whether they intersect or do not intersect anymore. I.e., we can compute the new objective value with:
-            obj_old - obj_old_v1_v2 + obj_new_v2_v1
-        I.e. subtracting the objective value that the crossings of the edges going out from v1 and v2 yielded from the
-        old objective value and then adding the new value that the crossings of the new constellation of v2 and v1
-        yields.
+        When flipping two adjacent vertices v1, v2, all the orders to the other vertices stay the same (e.g. if we have
+        v1 v2 v3 v4, if we flip v2 and v3, they still both appear after v1 and before v4).
+        I.e., we can compute the new objective value with:
+            obj_old - pre_comp_value[v1][v2] + pre_comp_value[v2][v1]
+        I.e., we use the precomputed values of the order of two vertices to efficiently compute the new value with
+        delta evaluation.
 
         :param sol_old: old solution vector
         :param obj_old: old objective value
@@ -318,46 +358,54 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         next_neighbor[i] = sol_old[i + 1]
         next_neighbor[i + 1] = sol_old[i]
 
-        # TODO rework this and do it more efficiently without the adjacency matrix
-        # adj_matrix[v][u]
-        adj_matrix = self.inst.adj_matrix
-
         v1 = sol_old[i]
         v2 = sol_old[i + 1]
-
-        # (v1, u, w)
-        edges_from_v1: [(int, int, int)] = []
-        for u in range(len(adj_matrix[v1])):
-            w = adj_matrix[v1][u]
-            if w > 0:
-                # Edge found
-                edges_from_v1.append((v1, u, w))
-
-        # (v2, u, w)
-        edges_from_v2: [(int, int, int)] = []
-        for u in range(len(adj_matrix[v2])):
-            w = adj_matrix[v2][u]
-            if w > 0:
-                # Edge found
-                edges_from_v2.append((v2, u, w))
-
-        obj_old_v1_v2 = 0
-        for (v1, u1, w1) in edges_from_v1:
-            for (v2, u2, w2) in edges_from_v2:
-                if u1 > u2:
-                    # The edges cross
-                    obj_old_v1_v2 += w1 + w2
-
-        obj_new_v2_v1 = 0
-        for (v2, u2, w2) in edges_from_v2:
-            for (v1, u1, w1) in edges_from_v1:
-                if u2 > u1:
-                    # The edges cross
-                    obj_new_v2_v1 += w2 + w1
-
-        new_obj_val = obj_old - obj_old_v1_v2 + obj_new_v2_v1
+        new_obj_val = obj_old - self.inst.pre_comp_val[v1][v2] + self.inst.pre_comp_val[v2][v1]
 
         return (next_neighbor, new_obj_val)
+
+    """
+    old version:
+    
+    def flip_two_adjacent_vertices(self, obj_old, sol_old, i):
+    
+    # adj_matrix[v][u]
+    adj_matrix = self.inst.adj_matrix
+    
+    # (v1, u, w)
+    edges_from_v1: [(int, int, int)] = []
+    for u in range(len(adj_matrix[v1])):
+        w = adj_matrix[v1][u]
+        if w > 0:
+            # Edge found
+            edges_from_v1.append((v1, u, w))
+
+    # (v2, u, w)
+    edges_from_v2: [(int, int, int)] = []
+    for u in range(len(adj_matrix[v2])):
+        w = adj_matrix[v2][u]
+        if w > 0:
+            # Edge found
+            edges_from_v2.append((v2, u, w))
+
+    obj_old_v1_v2 = 0
+    for (v1, u1, w1) in edges_from_v1:
+        for (v2, u2, w2) in edges_from_v2:
+            if u1 > u2:
+                # The edges cross
+                obj_old_v1_v2 += w1 + w2
+
+    obj_new_v2_v1 = 0
+    for (v2, u2, w2) in edges_from_v2:
+        for (v1, u1, w1) in edges_from_v1:
+            if u2 > u1:
+                # The edges cross
+                obj_new_v2_v1 += w2 + w1
+
+    new_obj_val = obj_old - obj_old_v1_v2 + obj_new_v2_v1
+    
+    return (next_neighbor, new_obj_val)
+    """
 
     def get_neighbor_rotate_to_the_right(self, current_solution: [int], current_obj: int, step_function: StepFunction):
         # TODO
@@ -378,13 +426,24 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         print("Initial solution: " + str(solution))
         print("Initial obj value: " + str(obj))
 
-        # TODO consider different StepFunctions: Random needs a number of iterations, while the other two reach a local
-        # optima after x iterations whcih they can't escape from.
+        early_stop = False
+
         for i in range(iterations):
             (next_neighbor, next_obj) = self.get_neighbor(solution, obj, neighborhood, step_function)
             if next_obj <= obj:
                 solution = next_neighbor
                 obj = next_obj
+            else:
+                if step_function.first_improvement or step_function.best_improvement:
+                    # If we have first or best improvement, that means that there is no better solution
+                    # in the neighborhood -> we reached a local optimum which we can't escape from.
+                    print("Terminated local search since a local maximum was reached after " + str(
+                        i + 1) + " iterations.")
+                    early_stop = True
+                    break
+
+        if not early_stop:
+            print("Terminated local search due to the iteration constraint of: " + str(iterations))
 
         return solution, obj
 

@@ -25,8 +25,8 @@ class Basics(unittest.TestCase):
         print("Starting reading")
         r_start = time.time()
         mwccp_instance = read_instance("../data/test_instances/medium_large/inst_500_40_00001")
-        r_end= time.time()
-        print("Finished reading: " + str(r_end-r_start))
+        r_end = time.time()
+        print("Finished reading: " + str(r_end - r_start))
 
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
@@ -42,8 +42,8 @@ class Basics(unittest.TestCase):
         print("Starting reading")
         r_start = time.time()
         mwccp_instance = read_instance("../data/test_instances/large/inst_1000_60_00001")
-        r_end= time.time()
-        print("Finished reading: " + str(r_end-r_start))
+        r_end = time.time()
+        print("Finished reading: " + str(r_end - r_start))
 
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
@@ -60,6 +60,16 @@ class Basics(unittest.TestCase):
         print(mwccp_solution.x)
 
         self.assertRaises(ValueError, mwccp_solution.check)
+
+    def test_is_valid_solution(self):
+        mwccp_solution = MWCCPSolution(self.mwccp_instance)
+        mwccp_solution.check()
+        assert mwccp_solution.is_valid_solution(mwccp_solution.x.tolist())
+
+    def test_is_valid_solution_neg(self):
+        mwccp_solution = MWCCPSolution(self.mwccp_instance)
+        mwccp_solution.x[::-1].sort()
+        assert not mwccp_solution.is_valid_solution(mwccp_solution.x.tolist())
 
 
 class DCH(unittest.TestCase):
@@ -216,12 +226,35 @@ class LocalSearch(unittest.TestCase):
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
         solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                        StepFunction.first_improvement, 1000)
+                                                        StepFunction.first_improvement, 100)
 
         print("----------------------")
         print("Solution after local search: " + str(solution))
         print("Objective value after local search: " + str(obj))
         assert obj == 0
+
+    def test_local_search_simple_local_maximum_already_reached(self):
+        mwccp_instance = read_instance("../data/test_instances/test_1")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                        StepFunction.first_improvement, 100)
+
+        print("----------------------")
+        print("Solution after local search: " + str(solution))
+        print("Objective value after local search: " + str(obj))
+        assert obj == 28
+
+    def test_local_search_small_1(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00001")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                        StepFunction.first_improvement, 100)
+
+        print("----------------------")
+        print("Solution after local search: " + str(solution))
+        print("Objective value after local search: " + str(obj))
 
     def test_local_search_medium_instance(self):
         mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00001")
@@ -231,7 +264,7 @@ class LocalSearch(unittest.TestCase):
         initial_obj_value = mwccp_solution.calc_objective()
 
         solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                        StepFunction.first_improvement, 1000)
+                                                        StepFunction.first_improvement, 5000)
 
         print("----------------------")
         print("Solution after local search: " + str(solution))
