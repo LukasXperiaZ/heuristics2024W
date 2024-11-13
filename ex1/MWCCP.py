@@ -57,12 +57,18 @@ class MWCCPInstance:
         self.C = C
         self.E = E
 
+        print("-- -- MWCCPInstance: " + "Calculating the adj matrix ...")
         # Convert the list of edges E into an adjacency matrix
         self.adj_matrix = self.create_bipartite_adjacency_matrix()
+        print("-- -- MWCCPInstance: " + "adj matrix finished!")
 
+        print("-- -- MWCCPInstance: " + "Calculating the edges from u and v ...")
         self.create_edges_from_u_and_v()
+        print("-- -- MWCCPInstance: " + "edges from u and v finished!")
 
+        print("-- -- MWCCPInstance: " + "Calculating the precomputed values of pairs of vertices ...")
         self.pre_comp_val = self.precompute_values_of_pairs_of_vertices()
+        print("-- -- MWCCPInstance: " + "Precomputed values of pairs of vertices finished!")
 
     def precompute_values_of_pairs_of_vertices(self):
         pre_comp_val: dict[int, dict] = {}

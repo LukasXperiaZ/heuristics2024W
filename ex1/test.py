@@ -39,11 +39,18 @@ class Basics(unittest.TestCase):
 
     def test_loading_and_objective_function_large(self):
         print("Starting reading")
+        r_start = time.time()
         mwccp_instance = read_instance("../data/test_instances/large/inst_1000_60_00001")
-        print("Finished reading")
+        r_end= time.time()
+        print("Finished reading: " + str(r_end-r_start))
+
         mwccp_solution = MWCCPSolution(mwccp_instance)
+
         print("Starting calculating the objective value")
+        r_start = time.time()
         obj_value = mwccp_solution.calc_objective()
+        r_end = time.time()
+        print("Finished calculating the obj function: " + str(r_end - r_start))
         print("Obj value: " + str(obj_value))
 
     def test_check(self):
