@@ -1,4 +1,5 @@
 import random
+import time
 from enum import Enum
 
 import numpy as np
@@ -67,25 +68,62 @@ class MWCCPInstance:
         print("-- -- MWCCPInstance: " + "edges from u and v finished!")
 
         print("-- -- MWCCPInstance: " + "Calculating the precomputed values of pairs of vertices ...")
+        start = time.time()
         self.pre_comp_val = self.precompute_values_of_pairs_of_vertices()
-        print("-- -- MWCCPInstance: " + "Precomputed values of pairs of vertices finished!")
+        end = time.time()
+        print("-- -- MWCCPInstance: " + "Precomputed values of pairs of vertices finished in: " + str(end - start))
 
     def precompute_values_of_pairs_of_vertices(self):
         pre_comp_val: dict[int, dict] = {}
 
-        for v1 in self.V:
-            pre_comp_val[v1] = {}
-            for v2 in self.V:
-                if v1 != v2:
-                    pre_comp_val[v1][v2] = 0
-                    # Assume v1 is left of v2, compute the resulting value.
-                    # (Since we iterate over all pairs (v1 v2) in V, we get both combinations, e.g. (6,7) and (7,6)
-                    #   in the case of just two vertices)
-                    # Iterate over all pairs of edges adjacent to v1 and v2
+        if True:
+            # Took 1.58
+            for v1 in self.V:
+                pre_comp_val[v1] = {}
+                for v2 in self.V:
+                    if v1 != v2:
+                        pre_comp_val[v1][v2] = 0
+                        # Assume v1 is left of v2, compute the resulting value.
+                        # (Since we iterate over all pairs (v1 v2) in V, we get both combinations, e.g. (6,7) and (7,6)
+                        #   in the case of just two vertices)
+                        # Iterate over all pairs of edges adjacent to v1 and v2
+                        for (u1, w1) in self.edges_from_v[v1]:
+                            for (u2, w2) in self.edges_from_v[v2]:
+                                if u1 > u2:
+                                    pre_comp_val[v1][v2] += w1 + w2
+
+        """
+        # Took 1.59
+        # initialization
+        for i in range(len(self.V)):
+            v = self.V[i]
+            pre_comp_val[v] = {}
+
+        for i in range(len(self.V)):
+            v1 = self.V[i]
+            for j in range(i + 1, len(self.V)):
+                v2 = self.V[j]
+
+                # v1 v2
+                pre_comp_val[v1][v2] = 0
+                # Assume v1 is left of v2, compute the resulting value.
+
+                # Iterate over all pairs of edges adjacent to v1 and v2
+                for (u1, w1) in self.edges_from_v[v1]:
+                    for (u2, w2) in self.edges_from_v[v2]:
+                        if u1 > u2:
+                            pre_comp_val[v1][v2] += w1 + w2
+
+                # v2 v1
+                pre_comp_val[v2][v1] = 0
+                # Assume v2 is left of v1, compute the resulting value.
+
+                # Iterate over all pairs of edges adjacent to v2 and v1
+                for (u2, w2) in self.edges_from_v[v2]:
                     for (u1, w1) in self.edges_from_v[v1]:
-                        for (u2, w2) in self.edges_from_v[v2]:
-                            if u1 > u2:
-                                pre_comp_val[v1][v2] += w1 + w2
+                        if u1 < u2:
+                            pre_comp_val[v2][v1] += w1 + w2
+        """
 
         return pre_comp_val
 

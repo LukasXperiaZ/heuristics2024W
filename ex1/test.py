@@ -38,6 +38,7 @@ class Basics(unittest.TestCase):
         print("Obj value: " + str(obj_value))
 
     def test_loading_and_objective_function_large(self):
+        # TAKES LOOOONG
         print("Starting reading")
         r_start = time.time()
         mwccp_instance = read_instance("../data/test_instances/large/inst_1000_60_00001")
@@ -101,6 +102,7 @@ class DCH(unittest.TestCase):
         print("Obj value: " + str(obj_value))
 
     def test_deterministic_construction_heuristic_large(self):
+        # TAKES LOOONG
         print("Starting reading the instance")
         mwccp_instance = read_instance("../data/test_instances/large/inst_1000_60_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
@@ -109,7 +111,6 @@ class DCH(unittest.TestCase):
         print("Starting check()")
         mwccp_solution.check()
         print("Solution: " + str(mwccp_solution.x))
-        # TODO This takes looong
         print("Starting calc_objective()")
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
