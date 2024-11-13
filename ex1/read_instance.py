@@ -4,63 +4,40 @@ from ex1.MWCCP import MWCCPInstance
 
 
 def read_instance(path: str) -> MWCCPInstance:
-    instance = open(path, 'r')
+    with open(path, 'r') as instance:
+        lines = instance.read().splitlines()
 
     # --- Process first line ---
-    first_line = instance.readline()
-    u_n, v_n, c_n, e_n = first_line.split()
-    u_n = int(u_n)
-    v_n = int(v_n)
-    c_n = int(c_n)
-    e_n = int(e_n)
+    u_n, v_n, c_n, e_n = map(int, lines[0].split())
 
-    U: [int] = []
-    V: [int] = []
+    U = list(range(1, u_n + 1))  # Create list of U
+    V = list(range(u_n + 1, u_n + 1 + v_n))  # Create list of V
     C: [(int, int)] = []
     E: [(int, int, int)] = []
-
-    for u in range(1, u_n + 1):
-        U.append(u)
-
-    for v in range(u_n + 1, u_n + 1 + v_n):
-        V.append(v)
     # --- --- --- --- --- ---
 
     # --- Process the other lines ---
-    constraints_title_s = True
     constraints_s = False
     edges_s = False
-    for line in instance:
-        if constraints_title_s:
-            # assert that now the constraints begin
-            constraints_title = line
-            assert(constraints_title.startswith("#constraints"))
-            constraints_title_s = False
+    for line in lines[1:]:
+        if line.startswith('#constraints'):
             constraints_s = True
             continue
 
+        if line.startswith("#edges"):
+            constraints_s = False
+            edges_s = True
+            continue
+
         if constraints_s:
-            # check if there are more constraints
-            if line.startswith("#edges"):
-                constraints_s = False
-                edges_s = True
-                continue
-
             # read the constraints
-            n1, n2 = line.split()
-            n1 = int(n1)
-            n2 = int(n2)
-
+            n1, n2 = map(int, line.split())
             C.append((n1, n2))
 
-        if edges_s:
+        elif edges_s:
             # read the edges
-            u, v, w = line.split()
-            u = int(u)
-            v = int(v)
-            w = int(w)
+            u, v, w = map(int, line.split())
             E.append((u, v, w))
     # --- --- --- --- --- ---
-    instance.close()
 
     return MWCCPInstance(U, V, C, E)

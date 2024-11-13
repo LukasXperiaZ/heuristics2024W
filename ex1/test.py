@@ -1,3 +1,4 @@
+import time
 import unittest
 
 import numpy as np
@@ -19,6 +20,31 @@ class Basics(unittest.TestCase):
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
         assert (obj_value == 51)
+
+    def test_loading_and_objective_function_medium_large(self):
+        print("Starting reading")
+        r_start = time.time()
+        mwccp_instance = read_instance("../data/test_instances/medium_large/inst_500_40_00001")
+        r_end= time.time()
+        print("Finished reading: " + str(r_end-r_start))
+
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        print("Starting calculating the objective value")
+        r_start = time.time()
+        obj_value = mwccp_solution.calc_objective()
+        r_end = time.time()
+        print("Finished calculating the obj function: " + str(r_end - r_start))
+        print("Obj value: " + str(obj_value))
+
+    def test_loading_and_objective_function_large(self):
+        print("Starting reading")
+        mwccp_instance = read_instance("../data/test_instances/large/inst_1000_60_00001")
+        print("Finished reading")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        print("Starting calculating the objective value")
+        obj_value = mwccp_solution.calc_objective()
+        print("Obj value: " + str(obj_value))
 
     def test_check(self):
         mwccp_solution = MWCCPSolution(self.mwccp_instance)
@@ -68,14 +94,17 @@ class DCH(unittest.TestCase):
         print("Obj value: " + str(obj_value))
 
     def test_deterministic_construction_heuristic_large(self):
+        print("Starting reading the instance")
         mwccp_instance = read_instance("../data/test_instances/large/inst_1000_60_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
+        print("Starting deterministic_construction_heuristic()")
         mwccp_solution.deterministic_construction_heuristic()
+        print("Starting check()")
         mwccp_solution.check()
         print("Solution: " + str(mwccp_solution.x))
         # TODO This takes looong
         print("Starting calc_objective()")
-        obj_value = 1  # mwccp_solution.calc_objective()
+        obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
 
 
