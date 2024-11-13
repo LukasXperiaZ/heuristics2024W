@@ -8,8 +8,18 @@ from ex1.local_search import StepFunction, LocalSearchSolution
 
 
 class MWCCPNeighborhoods(Enum):
+    """
+    Note that 1 and 2 are a subset of 3. However, 1 and 2 are distinct.
+    """
+
+    # Flip two adjacent vertices v1 v2 -> v2 v1
     flip_two_adjacent_vertices = 1
-    flip_two_vertices = 2
+
+    # Rotate the solution to the right
+    rotate_to_the_right = 2
+
+    # Move a vertex v from position i to position k (i != k)
+    move_vertex_to_position = 3
 
 
 class MWCCPInstance:
@@ -182,7 +192,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                 v2 = self.x[j]
                 # Determine the contribution based on the order in self.x
                 if v1 in self.inst.pre_comp_val and v2 in self.inst.pre_comp_val[v1]:
-                    value = value + self.inst.pre_comp_val[v1][v2]
+                    value += self.inst.pre_comp_val[v1][v2]
 
         return value
 
@@ -223,8 +233,10 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                      step_function: StepFunction) -> ([int], int):
         if neighborhood == MWCCPNeighborhoods.flip_two_adjacent_vertices:
             return self.get_neighbor_flip_two_adjacent_vertices(current_solution, current_obj, step_function)
-        elif neighborhood == MWCCPNeighborhoods.flip_two_vertices:
-            return self.get_neighbor_flip_two_vertices(current_solution, current_obj, step_function)
+        elif neighborhood == MWCCPNeighborhoods.rotate_to_the_right:
+            return self.get_neighbor_rotate_to_the_right(current_solution, current_obj, step_function)
+        elif neighborhood == MWCCPNeighborhoods.move_vertex_to_position:
+            return self.get_neighbor_move_vertex_to_position(current_solution, current_obj, step_function)
         else:
             raise ValueError("Neighborhood is not specified!")
 
@@ -262,6 +274,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         next_neighbor[i] = sol_old[i + 1]
         next_neighbor[i + 1] = sol_old[i]
 
+        # TODO rework this and do it more efficiently without the adjacency matrix
         # adj_matrix[v][u]
         adj_matrix = self.inst.adj_matrix
 
@@ -302,7 +315,13 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         return (next_neighbor, new_obj_val)
 
-    def get_neighbor_flip_two_vertices(self, current_solution: [int], current_obj: int, step_function: StepFunction):
+    def get_neighbor_rotate_to_the_right(self, current_solution: [int], current_obj: int, step_function: StepFunction):
+        # TODO
+        raise NotImplementedError
+
+    def get_neighbor_move_vertex_to_position(self, current_solution: [int], current_obj: int,
+                                             step_function: StepFunction):
+        # TODO
         raise NotImplementedError
 
     def run_local_search(self, neighborhood: MWCCPNeighborhoods, step_function: StepFunction, iterations: int):
@@ -315,6 +334,8 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         print("Initial solution: " + str(solution))
         print("Initial obj value: " + str(obj))
 
+        # TODO consider different StepFunctions: Random needs a number of iterations, while the other two reach a local
+        # optima after x iterations whcih they can't escape from.
         for i in range(iterations):
             (next_neighbor, next_obj) = self.get_neighbor(solution, obj, neighborhood, step_function)
             if next_obj <= obj:
