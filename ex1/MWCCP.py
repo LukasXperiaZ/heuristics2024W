@@ -54,7 +54,6 @@ class MWCCPInstance:
 
         self.pre_comp_val = self.precompute_values_of_pairs_of_vertices()
 
-
     def precompute_values_of_pairs_of_vertices(self):
         pre_comp_val: dict[int, dict] = {}
 
@@ -177,7 +176,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
     def calc_objective(self):
         value = 0
         # Iterate over all pairs of vertices in the current solution(self.x)
-   	for i in range(len(self.x)):
+        for i in range(len(self.x)):
             v1 = self.x[i]
             for j in range(i + 1, len(self.x)):
                 v2 = self.x[j]
@@ -267,7 +266,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         adj_matrix = self.inst.adj_matrix
 
         v1 = sol_old[i]
-        v2 = sol_old[i+1]
+        v2 = sol_old[i + 1]
 
         # (v1, u, w)
         edges_from_v1: [(int, int, int)] = []
