@@ -306,7 +306,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
     def get_neighbor_flip_two_adjacent_vertices(self, current_solution: [int], current_obj: int,
                                                 step_function: StepFunction):
-        if step_function.first_improvement:
+        if step_function == StepFunction.first_improvement:
             """
             First improvement strategy
             """
@@ -324,7 +324,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             # no better solution was found, return a bad objective value to indicate that the old solution is the
             # global maximum
             return (current_solution, (current_obj + 100) * 100)
-        elif step_function.best_improvement:
+        elif step_function == StepFunction.best_improvement:
             """
             Best improvement strategy
             """
@@ -347,12 +347,22 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                 return (current_solution, (current_obj + 100) * 100)
             # A better solution was found
             return (curr_sol, curr_obj)
-        elif step_function.random:
+        elif step_function == StepFunction.random:
             """
             Random strategy
             """
-            # TODO
-            pass
+            curr_sol = current_solution.copy()
+            j = random.randint(0, len(current_solution) - 1)
+            for i in range(len(curr_sol) - 1):
+                # Select a neighbor at random
+                # If the current solution is not valid, we try the next possibility until we enumerated all possibilities
+                next_index = (j + i) % (len(curr_sol) - 1)
+                next_neighbor, next_obj = self.flip_two_adjacent_vertices(current_obj, curr_sol, next_index)
+                if self.is_valid_solution(next_neighbor):
+                    return (next_neighbor, next_obj)
+
+            # No better solution found
+            return (current_solution, (current_obj + 100) * 100)
         else:
             raise ValueError("Step function is not specified!")
 
@@ -382,49 +392,6 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         return (next_neighbor, new_obj_val)
 
-    """
-    old version:
-    
-    def flip_two_adjacent_vertices(self, obj_old, sol_old, i):
-    
-    # adj_matrix[v][u]
-    adj_matrix = self.inst.adj_matrix
-    
-    # (v1, u, w)
-    edges_from_v1: [(int, int, int)] = []
-    for u in range(len(adj_matrix[v1])):
-        w = adj_matrix[v1][u]
-        if w > 0:
-            # Edge found
-            edges_from_v1.append((v1, u, w))
-
-    # (v2, u, w)
-    edges_from_v2: [(int, int, int)] = []
-    for u in range(len(adj_matrix[v2])):
-        w = adj_matrix[v2][u]
-        if w > 0:
-            # Edge found
-            edges_from_v2.append((v2, u, w))
-
-    obj_old_v1_v2 = 0
-    for (v1, u1, w1) in edges_from_v1:
-        for (v2, u2, w2) in edges_from_v2:
-            if u1 > u2:
-                # The edges cross
-                obj_old_v1_v2 += w1 + w2
-
-    obj_new_v2_v1 = 0
-    for (v2, u2, w2) in edges_from_v2:
-        for (v1, u1, w1) in edges_from_v1:
-            if u2 > u1:
-                # The edges cross
-                obj_new_v2_v1 += w2 + w1
-
-    new_obj_val = obj_old - obj_old_v1_v2 + obj_new_v2_v1
-    
-    return (next_neighbor, new_obj_val)
-    """
-
     def get_neighbor_rotate_to_the_right(self, current_solution: [int], current_obj: int, step_function: StepFunction):
         # TODO
         raise NotImplementedError
@@ -448,6 +415,9 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         for i in range(iterations):
             (next_neighbor, next_obj) = self.get_neighbor(solution, obj, neighborhood, step_function)
+            if not self.is_valid_solution(next_neighbor):
+                raise ValueError("The neighborhood '" + str(neighborhood) + "' with step function '" + str(
+                    step_function) + "' returned a non-valid solution!")
             if next_obj <= obj:
                 solution = next_neighbor
                 obj = next_obj
