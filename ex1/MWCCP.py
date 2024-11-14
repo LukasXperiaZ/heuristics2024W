@@ -319,6 +319,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                     continue
 
                 if next_obj < current_obj:
+                    # A better solution was found
                     return (next_neighbor, next_obj)
             # no better solution was found, return a bad objective value to indicate that the old solution is the
             # global maximum
@@ -327,8 +328,25 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             """
             Best improvement strategy
             """
-            # TODO
-            pass
+            curr_sol = current_solution.copy()
+            curr_obj = current_obj
+            for i in range(len(current_solution) - 1):
+                next_neighbor, next_obj = self.flip_two_adjacent_vertices(current_obj, curr_sol, i)
+
+                if not self.is_valid_solution(next_neighbor):
+                    # If the next neighbor violates some constraints, move to the next one
+                    continue
+
+                if next_obj < current_obj:
+                    curr_sol = next_neighbor
+                    curr_obj = next_obj
+
+            if curr_sol == current_solution:
+                # no better solution was found, return a bad objective value to indicate that the old solution is the
+                # global maximum
+                return (current_solution, (current_obj + 100) * 100)
+            # A better solution was found
+            return (curr_sol, curr_obj)
         elif step_function.random:
             """
             Random strategy

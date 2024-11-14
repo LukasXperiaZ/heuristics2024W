@@ -225,51 +225,83 @@ class LocalSearch(unittest.TestCase):
         mwccp_instance = read_instance("../data/test_instances/test")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
-        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                        StepFunction.first_improvement, 100)
+        iterations = 100
 
-        print("----------------------")
-        print("Solution after local search: " + str(solution))
-        print("Objective value after local search: " + str(obj))
-        assert obj == 0
+        print("----------- First improvement -----------")
+        solution_first, obj_first = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                        StepFunction.first_improvement, iterations)
+        print("Solution after local search: " + str(solution_first))
+        print("Objective value after local search: " + str(obj_first))
+        assert obj_first == 0
+
+        print("----------- Best Improvement -----------")
+        solution_best, obj_best = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                  StepFunction.best_improvement, iterations)
+        print("Solution after local search: " + str(solution_best))
+        print("Objective value after local search: " + str(obj_best))
+        assert obj_best == 0
+
+
 
     def test_local_search_simple_local_maximum_already_reached(self):
         mwccp_instance = read_instance("../data/test_instances/test_1")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
-        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                        StepFunction.first_improvement, 100)
+        iterations = 100
 
-        print("----------------------")
+        print("----------- First improvement -----------")
+        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                        StepFunction.first_improvement, iterations)
         print("Solution after local search: " + str(solution))
         print("Objective value after local search: " + str(obj))
         assert obj == 28
+
+        print("----------- Best Improvement -----------")
+        solution_best, obj_best = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                  StepFunction.best_improvement, iterations)
+        print("Solution after local search: " + str(solution_best))
+        print("Objective value after local search: " + str(obj_best))
+        assert obj_best == 28
 
     def test_local_search_small_1(self):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
-        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                        StepFunction.first_improvement, 100)
+        iterations = 100
 
-        print("----------------------")
+        print("----------- First improvement -----------")
+        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                        StepFunction.first_improvement, iterations)
         print("Solution after local search: " + str(solution))
         print("Objective value after local search: " + str(obj))
 
-    def test_local_search_medium_instance(self):
+        print("----------- Best Improvement -----------")
+        solution_best, obj_best = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                  StepFunction.best_improvement, iterations)
+        print("Solution after local search: " + str(solution_best))
+        print("Objective value after local search: " + str(obj_best))
+
+    def test_local_search_medium_1(self):
         mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.deterministic_construction_heuristic()
         mwccp_solution.check()
         initial_obj_value = mwccp_solution.calc_objective()
 
-        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                        StepFunction.first_improvement, 5000)
+        iterations = 5000
 
-        print("----------------------")
+        print("----------- First improvement -----------")
+        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                        StepFunction.first_improvement, iterations)
         print("Solution after local search: " + str(solution))
         print("Objective value after local search: " + str(obj))
         assert initial_obj_value > obj
+
+        print("----------- Best Improvement -----------")
+        solution_best, obj_best = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                  StepFunction.best_improvement, iterations)
+        print("Solution after local search: " + str(solution_best))
+        print("Objective value after local search: " + str(obj_best))
 
 
 class VND(unittest.TestCase):
