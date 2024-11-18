@@ -2,6 +2,7 @@ import time
 import unittest
 
 import numpy as np
+from pymhlib.gvns import GVNS
 
 from ex1.MWCCP import MWCCPSolution, MWCCPInstance, MWCCPNeighborhoods
 from ex1.local_search import StepFunction
@@ -333,5 +334,5 @@ class VND(unittest.TestCase):
     def test_VND(self):
         mwccp_instance = read_instance("../data/test_instances/test")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        # vnd = GVNS(mwccp_solution)
+        vnd = GVNS(mwccp_solution, )
         # TODO

@@ -435,6 +435,38 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         return solution, obj
 
+    def vnd(self, neighborhoods: [MWCCPNeighborhoods], step_function: StepFunction):
+        # TODO TEST
+        # Get the initial solution from the DCH
+        self.deterministic_construction_heuristic()
+        self.check()
+        curr_solution: [int] = self.x.tolist()
+        # Calculate the obj value of the initial solution
+        curr_obj: int = self.calc_objective()
+        print("Initial solution: " + str(curr_solution))
+        print("Initial obj value: " + str(curr_obj))
+
+        l = 1
+        l_max = len(neighborhoods)
+        while l <= l_max:
+            curr_neighborhood = neighborhoods[l]
+            (next_neighbor, next_obj) = self.get_neighbor(curr_solution, curr_obj, curr_neighborhood, step_function)
+
+            if not self.is_valid_solution(next_neighbor):
+                raise ValueError("The neighborhood '" + str(curr_neighborhood) + "' with step function '" + str(
+                    step_function) + "' returned a non-valid solution!")
+
+            if next_obj < curr_obj:
+                # better solution found
+                curr_solution = next_neighbor
+                curr_obj = next_obj
+                l = 1
+            else:
+                l += 1
+
+        return curr_solution, curr_obj
+
+
     def deterministic_construction_heuristic(self):
         self.initialize(-1)
         x_temp: []
