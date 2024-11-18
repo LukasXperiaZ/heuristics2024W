@@ -5,8 +5,10 @@ from enum import Enum
 import numpy as np
 from pymhlib.solution import VectorSolution
 
+from ex1.evaluation import ObjIter, Stats
 from ex1.local_search import StepFunction, LocalSearchSolution
 
+obj_no_better_sol_found = 999999999999999
 
 class MWCCPNeighborhoods(Enum):
     """
@@ -362,7 +364,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                     return (next_neighbor, next_obj)
 
             # No better solution found
-            return (current_solution, (current_obj + 100) * 100)
+            return (current_solution, obj_no_better_sol_found)
         else:
             raise ValueError("Step function is not specified!")
 
@@ -408,32 +410,44 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         solution: [int] = self.x.tolist()
         # Calculate the obj value of the initial solution
         obj: int = self.calc_objective()
-        print("Initial solution: " + str(solution))
-        print("Initial obj value: " + str(obj))
+
+        obj_over_time: [ObjIter] = [ObjIter(obj, 0)]
+        iter_total = 1
 
         early_stop = False
 
-        for i in range(iterations):
+        start = time.time()
+        for i in range(1, iterations + 1):
+            iter_total = i
             (next_neighbor, next_obj) = self.get_neighbor(solution, obj, neighborhood, step_function)
+
             if not self.is_valid_solution(next_neighbor):
                 raise ValueError("The neighborhood '" + str(neighborhood) + "' with step function '" + str(
                     step_function) + "' returned a non-valid solution!")
+
             if next_obj <= obj:
                 solution = next_neighbor
                 obj = next_obj
             else:
-                if step_function.first_improvement or step_function.best_improvement:
+                if step_function == step_function.first_improvement or step_function == step_function.best_improvement:
                     # If we have first or best improvement, that means that there is no better solution
                     # in the neighborhood -> we reached a local optimum which we can't escape from.
-                    print("Terminated local search since a local maximum was reached after " + str(
-                        i + 1) + " iterations.")
                     early_stop = True
                     break
 
-        if not early_stop:
+            obj_over_time.append(ObjIter(next_obj, i))
+
+        end = time.time()
+
+        if early_stop:
+            print("Terminated local search since a local maximum was reached after " + str(
+                obj_over_time[len(obj_over_time) - 1]) + " iterations.")
+        else:
             print("Terminated local search due to the iteration constraint of: " + str(iterations))
 
-        return solution, obj
+        stats = Stats(title=step_function.name, start_time=start, end_time=end, iterations=iter_total, final_objective=obj, obj_over_time=obj_over_time)
+
+        return solution, stats
 
     def vnd(self, neighborhoods: [MWCCPNeighborhoods], step_function: StepFunction):
         # TODO TEST
@@ -465,7 +479,6 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                 l += 1
 
         return curr_solution, curr_obj
-
 
     def deterministic_construction_heuristic(self):
         self.initialize(-1)

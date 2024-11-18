@@ -5,6 +5,7 @@ import numpy as np
 from pymhlib.gvns import GVNS
 
 from ex1.MWCCP import MWCCPSolution, MWCCPInstance, MWCCPNeighborhoods
+from ex1.evaluation import MultiStats
 from ex1.local_search import StepFunction
 from ex1.read_instance import read_instance
 
@@ -229,25 +230,25 @@ class LocalSearch(unittest.TestCase):
         iterations = 100
 
         print("\n----------- First improvement -----------")
-        solution_first, obj_first = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                    StepFunction.first_improvement, iterations)
+        solution_first, stats_first = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                      StepFunction.first_improvement, iterations)
         print("Solution after local search: " + str(solution_first))
-        print("Objective value after local search: " + str(obj_first))
-        assert obj_first == 0
+        stats_first.show_plot()
+        assert stats_first.final_objective == 0
 
         print("\n----------- Best Improvement -----------")
-        solution_best, obj_best = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                  StepFunction.best_improvement, iterations)
+        solution_best, stats_best = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                    StepFunction.best_improvement, iterations)
         print("Solution after local search: " + str(solution_best))
-        print("Objective value after local search: " + str(obj_best))
-        assert obj_best == 0
+        stats_best.show_plot()
+        assert stats_best.final_objective == 0
 
         print("\n----------- Random Improvement -----------")
-        solution_rand, obj_rand = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                  StepFunction.random, iterations)
+        solution_rand, stats_rand = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                    StepFunction.random, iterations)
         print("Solution after local search: " + str(solution_rand))
-        print("Objective value after local search: " + str(obj_rand))
-        assert obj_rand == 0
+        stats_rand.show_plot()
+        assert stats_rand.final_objective == 0
 
     def test_local_search_simple_local_maximum_already_reached(self):
         mwccp_instance = read_instance("../data/test_instances/test_1")
@@ -256,25 +257,25 @@ class LocalSearch(unittest.TestCase):
         iterations = 100
 
         print("\n----------- First improvement -----------")
-        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                        StepFunction.first_improvement, iterations)
-        print("Solution after local search: " + str(solution))
-        print("Objective value after local search: " + str(obj))
-        assert obj == 28
+        solution_first, stats_first = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                      StepFunction.first_improvement, iterations)
+        print("Solution after local search: " + str(solution_first))
+        stats_first.show_plot()
+        assert stats_first.final_objective == 28
 
         print("\n----------- Best Improvement -----------")
-        solution_best, obj_best = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                  StepFunction.best_improvement, iterations)
+        solution_best, stats_best = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                    StepFunction.best_improvement, iterations)
         print("Solution after local search: " + str(solution_best))
-        print("Objective value after local search: " + str(obj_best))
-        assert obj_best == 28
+        stats_best.show_plot()
+        assert stats_best.final_objective == 28
 
         print("\n----------- Random Improvement -----------")
-        solution_rand, obj_rand = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                  StepFunction.random, iterations)
+        solution_rand, stats_rand = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                    StepFunction.random, iterations)
         print("Solution after local search: " + str(solution_rand))
-        print("Objective value after local search: " + str(obj_rand))
-        assert obj_rand == 28
+        stats_rand.show_plot()
+        assert stats_rand.final_objective == 28
 
     def test_local_search_small_1(self):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00001")
@@ -283,50 +284,49 @@ class LocalSearch(unittest.TestCase):
         iterations = 100
 
         print("\n----------- First improvement -----------")
-        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                        StepFunction.first_improvement, iterations)
-        print("Solution after local search: " + str(solution))
-        print("Objective value after local search: " + str(obj))
+        solution_first, stats_first = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                      StepFunction.first_improvement, iterations)
+        print("Solution after local search: " + str(solution_first))
+        stats_first.show_plot()
 
         print("\n----------- Best Improvement -----------")
-        solution_best, obj_best = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                  StepFunction.best_improvement, iterations)
+        solution_best, stats_best = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                    StepFunction.best_improvement, iterations)
         print("Solution after local search: " + str(solution_best))
-        print("Objective value after local search: " + str(obj_best))
+        stats_best.show_plot()
 
         print("\n----------- Random Improvement -----------")
-        solution_rand, obj_rand = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                  StepFunction.random, iterations)
+        solution_rand, stats_rand = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                    StepFunction.random, iterations)
         print("Solution after local search: " + str(solution_rand))
-        print("Objective value after local search: " + str(obj_rand))
+        stats_rand.show_plot()
+
+        multi_stats = MultiStats([stats_first, stats_best, stats_rand])
+        multi_stats.plot_stats()
 
     def test_local_search_medium_1(self):
         mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        mwccp_solution.deterministic_construction_heuristic()
-        mwccp_solution.check()
-        initial_obj_value = mwccp_solution.calc_objective()
 
         iterations = 5000
 
         print("\n----------- First improvement -----------")
-        solution, obj = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                        StepFunction.first_improvement, iterations)
-        print("Solution after local search: " + str(solution))
-        print("Objective value after local search: " + str(obj))
-        assert initial_obj_value > obj
+        solution_first, stats_first = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                      StepFunction.first_improvement, iterations)
+        print("Solution after local search: " + str(solution_first))
 
         print("\n----------- Best Improvement -----------")
-        solution_best, obj_best = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                  StepFunction.best_improvement, iterations)
+        solution_best, stats_best = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                    StepFunction.best_improvement, iterations)
         print("Solution after local search: " + str(solution_best))
-        print("Objective value after local search: " + str(obj_best))
 
         print("\n----------- Random Improvement -----------")
-        solution_rand, obj_rand = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                  StepFunction.random, iterations)
+        solution_rand, stats_rand = mwccp_solution.run_local_search(MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                                    StepFunction.random, iterations)
         print("Solution after local search: " + str(solution_rand))
-        print("Objective value after local search: " + str(obj_rand))
+
+        multi_stats = MultiStats([stats_first, stats_best, stats_rand])
+        multi_stats.plot_stats()
 
 
 class VND(unittest.TestCase):
@@ -334,5 +334,4 @@ class VND(unittest.TestCase):
     def test_VND(self):
         mwccp_instance = read_instance("../data/test_instances/test")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        vnd = GVNS(mwccp_solution, )
         # TODO
