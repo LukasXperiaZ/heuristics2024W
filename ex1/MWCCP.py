@@ -418,7 +418,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         raise NotImplementedError
 
     def local_search(self, initial_solution: [int], neighborhood: MWCCPNeighborhoods, step_function: StepFunction,
-                     max_iterations: int = -1):
+                     max_iterations: int = -1, max_time_in_s: int = -1):
         solution: [int] = initial_solution.copy()
         # Calculate the obj value of the initial solution
         obj: int = self.calc_objective_par(initial_solution)
@@ -434,6 +434,11 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             if max_iterations > 0:
                 # If there is a limit on the number of iterations, break if it has been reached.
                 if curr_iter > max_iterations:
+                    break
+            if max_time_in_s > 0:
+                # If there is a limit on the amount of time it should run, break if it has been exceeded.
+                curr_time = time.time()
+                if curr_time - start > max_time_in_s:
                     break
 
             (next_neighbor, next_obj) = self.get_neighbor(solution, obj, neighborhood, step_function)
@@ -470,7 +475,8 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         return solution, obj, stats
 
-    def vnd(self, neighborhoods: [MWCCPNeighborhoods], step_function: StepFunction, max_iterations=-1):
+    def vnd(self, neighborhoods: [MWCCPNeighborhoods], step_function: StepFunction, max_iterations: int = -1,
+            max_time_in_s: int = -1):
         # TODO TEST with more than one neighborhood
         # Get the initial solution from the DCH
         self.deterministic_construction_heuristic()
@@ -508,6 +514,11 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             if max_iterations > 0:
                 # If there is a limit on the number on iterations, break when it is reached
                 if curr_iter >= max_iterations:
+                    break
+            if max_time_in_s > 0:
+                # If there is a limit on the amount of time, break when it is reached
+                curr_time = time.time()
+                if curr_time - start > max_time_in_s:
                     break
 
             curr_iter += 1
@@ -570,14 +581,14 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             x_temp[u_i - 1] = v_i
             V_rem.remove(v_i)
 
-            # While v_i violates a constraint of the form (v_i, v_j)
+            # While there are violated constraints of the form (v_k, v_j)
             violated_constraints = self.get_violated_constraints(x_temp)  # O(|C|)
             while violated_constraints:  # O(|violated_constraints| * |violated_constraints|)
-                _, v_j = violated_constraints[0]
-                # Move v_i at the position of v_j and push v_j and its successors to the right
-                self.resolve_constraint(x_temp, v_i, v_j)  # O(1)
+                (v_k, v_j) = violated_constraints[0]
+                # Move v_k at the position of v_j and push v_j and its successors to the right
+                self.resolve_constraint(x_temp, v_k, v_j)  # O(1)
 
-                violated_constraints.remove((_, v_j))
+                violated_constraints.remove((v_k, v_j))
                 # check, if other constraints could also be resolved
                 self.remove_resolved_constraints(x_temp, violated_constraints)  # O(|violated_constraints|)
 
@@ -610,12 +621,12 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             x_temp[u_i - 1] = v_i
             V_rem.remove(v_i)
 
-            # While v_i violates a constraint of the form (v_i, v_j)
+            # While there are violated constraints of the form (v_k, v_j)
             violated_constraints = self.get_violated_constraints(x_temp)
             while violated_constraints:
-                v_i, v_j = violated_constraints[0]
-                # Move v_i at the position of v_j and push v_j and its successors to the right
-                self.resolve_constraint(x_temp, v_i, v_j)
+                v_k, v_j = violated_constraints[0]
+                # Move v_k at the position of v_j and push v_j and its successors to the right
+                self.resolve_constraint(x_temp, v_k, v_j)
 
                 violated_constraints = self.get_violated_constraints(x_temp)
 
