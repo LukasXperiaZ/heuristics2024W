@@ -2,7 +2,6 @@ import time
 import unittest
 
 import numpy as np
-from pymhlib.gvns import GVNS
 
 from ex1.MWCCP import MWCCPSolution, MWCCPInstance, MWCCPNeighborhoods
 from ex1.evaluation import MultiStats
@@ -331,7 +330,20 @@ class LocalSearch(unittest.TestCase):
 
 class VND(unittest.TestCase):
 
-    def test_VND(self):
-        mwccp_instance = read_instance("../data/test_instances/test")
+    def test_VND_only_one_neighborhood_small(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        # TODO
+
+        max_iterations = 500
+        solution_best, stats_best = mwccp_solution.vnd([MWCCPNeighborhoods.flip_two_adjacent_vertices],
+                                                       StepFunction.best_improvement, max_iterations)
+        stats_best.show_plot()
+
+    def test_VND_only_one_neighborhood(self):
+        mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00002")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        max_iterations = 10000
+        solution_best, stats_best = mwccp_solution.vnd([MWCCPNeighborhoods.flip_two_adjacent_vertices],
+                                                       StepFunction.best_improvement, max_iterations)
+        stats_best.show_plot()
