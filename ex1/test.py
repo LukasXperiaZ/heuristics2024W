@@ -374,7 +374,7 @@ class GRASP(unittest.TestCase):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
-        max_iterations = 5000
+        max_iterations = 1000
         solution_best, stats_best = mwccp_solution.grasp(MWCCPNeighborhoods.flip_two_adjacent_vertices,
                                                          StepFunction.best_improvement, max_iterations)
         stats_best.show_plot()

@@ -417,7 +417,8 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         # TODO
         raise NotImplementedError
 
-    def local_search(self, initial_solution: [int], neighborhood: MWCCPNeighborhoods, step_function: StepFunction, max_iterations: int = -1):
+    def local_search(self, initial_solution: [int], neighborhood: MWCCPNeighborhoods, step_function: StepFunction,
+                     max_iterations: int = -1):
         solution: [int] = initial_solution.copy()
         # Calculate the obj value of the initial solution
         obj: int = self.calc_objective_par(initial_solution)
@@ -529,7 +530,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         start = time.time()
         # =======================================
         for i in range(max_iterations):
-            max_iter = i
+            max_iter = i + 1
             # Get the initial solution from the RCH
             self.randomized_construction_heuristic()
             self.check()
