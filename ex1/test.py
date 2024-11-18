@@ -416,7 +416,6 @@ class VND(unittest.TestCase):
         stats_best.show_plot()
 
     def test_VND_only_one_neighborhood_time_constraint(self):
-        # TODO check
         mwccp_instance = read_instance("../data/test_instances/medium_large/inst_500_40_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
