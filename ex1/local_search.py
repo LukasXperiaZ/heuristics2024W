@@ -20,7 +20,7 @@ class LocalSearchSolution(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def run_local_search(self, neighborhood, step_function: StepFunction, iterations: int):
+    def local_search(self, initial_solution: [int], neighborhood, step_function: StepFunction, max_iterations: int):
         """
         Run local search on the specified neighborhood and the step function.
         """

@@ -28,7 +28,7 @@ class Stats:
         self.final_objective = final_objective
         self.obj_over_time = obj_over_time
 
-    def get_running_time(self):
+    def get_run_time(self):
         return self.end_time - self.start_time
 
     def get_iterations(self):
@@ -42,7 +42,7 @@ class Stats:
 
     def print_stats(self):
         print("===== Stats =====")
-        print("Runtime: " + str(self.get_running_time()))
+        print("Runtime: " + str(self.get_run_time()))
         print("Iterations: " + str(self.iterations))
         print("Final objective: " + str(self.final_objective))
 
@@ -59,7 +59,7 @@ class Stats:
         plt.xlabel("Iterations")
         plt.ylabel("Objective Value")
         plt.title(self.title)
-        description = "Runtime: " + f"{self.get_running_time():.5f}" + "\n" + "Iterations: " + str(
+        description = "Runtime: " + f"{self.get_run_time():.5f}s" + "\n" + "Iterations: " + str(
             self.iterations) + "\n" + "Final objective: " + str(self.final_objective)
         plt.text(0.95, 0.95, description,
                  fontsize=10,
@@ -74,11 +74,9 @@ class MultiStats:
     def __init__(self, stats: [Stats]):
         self.stats = stats
 
-    def plot_stats(self):
+    def plot_stats(self, title: str):
         colors = ["blue", "green", "red", "yellow", "black", "cyan"]
         c = 0
-
-        description = ""
 
         for stat in self.stats:
             x_points = list(range(len(stat.obj_over_time)))
@@ -86,14 +84,14 @@ class MultiStats:
             for i in range(len(stat.obj_over_time)):
                 y_points.append(stat.obj_over_time[i].objective)
 
-            plt.plot(x_points, y_points, label=stat.title, color=colors[c], marker='o')
+            plt.plot(x_points, y_points, label=stat.title + f", {stat.get_run_time():.5f}s", color=colors[c], marker='o')
 
             c += 1
 
         plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
         plt.xlabel("Iterations")
         plt.ylabel("Objective Value")
-        plt.title("Comparison")
+        plt.title("Comparison: " + title)
         plt.legend()
         plt.show()
 

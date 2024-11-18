@@ -243,6 +243,19 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         return value
 
+    def calc_objective_par(self, solution: [int]):
+        value = 0
+        # Iterate over all pairs of vertices in the current solution
+        for i in range(len(solution)):
+            v1 = solution[i]
+            for j in range(i + 1, len(solution)):
+                v2 = solution[j]
+                # Determine the contribution based on the order in solution
+                if v1 in self.inst.pre_comp_val and v2 in self.inst.pre_comp_val[v1]:
+                    value += self.inst.pre_comp_val[v1][v2]
+
+        return value
+
     def initialize(self, k):
         """
         Initialize the solution vector with the vertices from v.
@@ -404,22 +417,24 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         # TODO
         raise NotImplementedError
 
-    def run_local_search(self, neighborhood: MWCCPNeighborhoods, step_function: StepFunction, iterations: int):
-        # Get the initial solution from the DCH
-        self.deterministic_construction_heuristic()
-        self.check()
-        solution: [int] = self.x.tolist()
+    def local_search(self, initial_solution: [int], neighborhood: MWCCPNeighborhoods, step_function: StepFunction, max_iterations: int = -1):
+        solution: [int] = initial_solution.copy()
         # Calculate the obj value of the initial solution
-        obj: int = self.calc_objective()
+        obj: int = self.calc_objective_par(initial_solution)
 
         obj_over_time: [ObjIter] = [ObjIter(obj, 0)]
-        iter_total = 1
+        curr_iter = 1
 
         early_stop = False
 
         start = time.time()
-        for i in range(1, iterations + 1):
-            iter_total = i
+        # =======================================
+        while True:
+            if max_iterations > 0:
+                # If there is a limit on the number of iterations, break if it has been reached.
+                if curr_iter > max_iterations:
+                    break
+
             (next_neighbor, next_obj) = self.get_neighbor(solution, obj, neighborhood, step_function)
 
             if not self.is_valid_solution(next_neighbor):
@@ -436,20 +451,23 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                     early_stop = True
                     break
 
-            obj_over_time.append(ObjIter(obj, i))
-
+            obj_over_time.append(ObjIter(obj, curr_iter))
+            curr_iter += 1
+        # =======================================
         end = time.time()
 
+        """
         if early_stop:
             print("Terminated local search since a local maximum was reached after " + str(
                 obj_over_time[len(obj_over_time) - 1]) + " iterations.")
         else:
-            print("Terminated local search due to the iteration constraint of: " + str(iterations))
+            print("Terminated local search due to the iteration constraint of: " + str(max_iterations))
+        """
 
-        stats = Stats(title=step_function.name, start_time=start, end_time=end, iterations=iter_total,
+        stats = Stats(title=step_function.name, start_time=start, end_time=end, iterations=curr_iter,
                       final_objective=obj, obj_over_time=obj_over_time)
 
-        return solution, stats
+        return solution, obj, stats
 
     def vnd(self, neighborhoods: [MWCCPNeighborhoods], step_function: StepFunction, max_iterations=-1):
         # TODO TEST with more than one neighborhood
@@ -467,6 +485,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         curr_iter = 1
 
         start = time.time()
+        # =======================================
         while l <= l_max:
             curr_neighborhood = neighborhoods[l]
             (next_neighbor, next_obj) = self.get_neighbor(curr_solution, curr_obj, curr_neighborhood, step_function)
@@ -491,12 +510,48 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                     break
 
             curr_iter += 1
+        # =======================================
         end = time.time()
 
         stats = Stats(title="VND + " + step_function.name, start_time=start, end_time=end, iterations=curr_iter,
                       final_objective=curr_obj, obj_over_time=obj_over_time)
 
         return curr_solution, stats
+
+    def grasp(self, neighborhood: MWCCPNeighborhoods, step_function: StepFunction, max_iterations: int):
+        # TODO TEST
+        best_sol = None
+        best_obj = 999999999999999999
+
+        obj_over_time: [ObjIter] = []
+        max_iter = 0
+
+        start = time.time()
+        # =======================================
+        for i in range(max_iterations):
+            max_iter = i
+            # Get the initial solution from the RCH
+            self.randomized_construction_heuristic()
+            self.check()
+            curr_solution: [int] = self.x.tolist()
+            # Calculate the obj value of the initial solution
+            curr_obj: int = self.calc_objective()
+
+            # Run a local search to get a local maximum
+            loc_sol, loc_obj, _ = self.local_search(curr_solution, neighborhood, step_function)
+
+            if loc_obj < best_obj:
+                best_sol = loc_sol
+                best_obj = loc_obj
+
+            obj_over_time.append(ObjIter(best_obj, i))
+        # ========================================
+        end = time.time()
+
+        stats = Stats(title="GRASP + " + step_function.name, start_time=start, end_time=end, iterations=max_iter,
+                      final_objective=best_obj, obj_over_time=obj_over_time)
+
+        return best_sol, stats
 
     def deterministic_construction_heuristic(self):
         self.initialize(-1)
