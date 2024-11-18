@@ -535,8 +535,6 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             self.randomized_construction_heuristic()
             self.check()
             curr_solution: [int] = self.x.tolist()
-            # Calculate the obj value of the initial solution
-            curr_obj: int = self.calc_objective()
 
             # Run a local search to get a local maximum
             loc_sol, loc_obj, _ = self.local_search(curr_solution, neighborhood, step_function)
