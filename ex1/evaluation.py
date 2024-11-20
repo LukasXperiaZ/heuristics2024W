@@ -59,8 +59,11 @@ class Stats:
         plt.xlabel("Iterations")
         plt.ylabel("Objective Value")
         plt.title(self.title + ", " + title)
-        description = "Runtime: " + f"{self.get_run_time():.5f}s" + "\n" + "Iterations: " + str(
-            self.iterations) + "\n" + "Final objective: " + str(self.final_objective)
+        description = "Runtime: " + f"{self.get_run_time():.5f}s"
+        if self.get_iterations() > 0:
+            description += "\n" + "Iterations: " + str(
+                self.iterations)
+        description += "\n" + "Final objective: " + str(self.final_objective)
         plt.text(0.95, 0.95, description,
                  fontsize=10,
                  ha='right',
@@ -84,7 +87,8 @@ class MultiStats:
             for i in range(len(stat.obj_over_time)):
                 y_points.append(stat.obj_over_time[i].objective)
 
-            plt.plot(x_points, y_points, label=stat.title + f", {stat.get_run_time():.5f}s", color=colors[c], marker='o')
+            plt.plot(x_points, y_points, label=stat.title + f", {stat.get_run_time():.5f}s", color=colors[c],
+                     marker='o')
 
             c += 1
 
@@ -94,4 +98,3 @@ class MultiStats:
         plt.title("Comparison: " + title)
         plt.legend()
         plt.show()
-

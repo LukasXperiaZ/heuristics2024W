@@ -71,20 +71,15 @@ class MWCCPInstance:
         self.C = C
         self.E = E
 
-        print("-- -- MWCCPInstance: " + "Calculating the adj matrix ...")
         # Convert the list of edges E into an adjacency matrix
         self.adj_matrix = self.create_bipartite_adjacency_matrix()
-        print("-- -- MWCCPInstance: " + "adj matrix finished!")
-
-        print("-- -- MWCCPInstance: " + "Calculating the edges from u and v ...")
         self.create_edges_from_u_and_v()
-        print("-- -- MWCCPInstance: " + "edges from u and v finished!")
 
         print("-- -- MWCCPInstance: " + "Calculating the precomputed values of pairs of vertices ...")
         start = time.time()
         self.pre_comp_val = self.precompute_values_of_pairs_of_vertices()
         end = time.time()
-        print("-- -- MWCCPInstance: " + "Precomputed values of pairs of vertices finished in: " + str(end - start))
+        print("-- -- MWCCPInstance: " + "Precomputed values of pairs of vertices finished in: " + f"{(end-start):.6f}s")
 
     def precompute_values_of_pairs_of_vertices(self):
         pre_comp_val: dict[int, dict] = {}
@@ -412,10 +407,15 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         return self.flip_two_adjacent_vertices(temp_neighbor, temp_obj, i + 2)
 
     def local_search(self, initial_solution: [int], neighborhood: MWCCPNeighborhoods, step_function: StepFunction,
-                     max_iterations: int = -1, max_time_in_s: int = -1):
+                     initial_obj: int = -1, max_iterations: int = -1, max_time_in_s: int = -1):
         solution: [int] = initial_solution.copy()
         # Calculate the obj value of the initial solution
-        obj: int = self.calc_objective_par(initial_solution)
+
+        obj: int
+        if initial_obj < 0:
+            obj = self.calc_objective_par(initial_solution)
+        else:
+            obj = initial_obj
 
         obj_over_time: [ObjIter] = [ObjIter(obj, 0)]
         curr_iter = 1
@@ -462,11 +462,10 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
     def vnd(self, neighborhoods: [MWCCPNeighborhoods], step_function: StepFunction, max_iterations: int = -1,
             max_time_in_s: int = -1):
         # Get the initial solution from the DCH
-        self.deterministic_construction_heuristic()
-        self.check()
-        curr_solution: [int] = self.x.tolist()
-        # Calculate the obj value of the initial solution
-        curr_obj: int = self.calc_objective()
+        sol, obj, _ = self.deterministic_construction_heuristic()
+        curr_solution: [int] = sol
+        # The obj value of the initial solution
+        curr_obj: int = obj
 
         obj_over_time: [ObjIter] = [ObjIter(curr_obj, 0)]
 
@@ -513,36 +512,44 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         return curr_solution, stats
 
-    def grasp(self, neighborhood: MWCCPNeighborhoods, step_function: StepFunction, max_iterations: int):
-        # TODO TEST
+    def grasp(self, neighborhood: MWCCPNeighborhoods, step_function: StepFunction, max_iterations: int = -1,
+              max_time_in_s: int = -1):
         best_sol = None
-        best_obj = 999999999999999999
+        best_obj = obj_huge
 
         obj_over_time: [ObjIter] = []
-        max_iter = 0
+        i = 0
 
         start = time.time()
         # =======================================
-        for i in range(max_iterations):
-            max_iter = i + 1
+        while True:
             # Get the initial solution from the RCH
-            self.randomized_construction_heuristic()
-            self.check()
-            curr_solution: [int] = self.x.tolist()
+            sol, obj, _ = self.randomized_construction_heuristic()
+            curr_solution: [int] = sol
 
             # Run a local search to get a local maximum
-            loc_sol, loc_obj, _ = self.local_search(curr_solution, neighborhood, step_function)
+            loc_sol, loc_obj, _ = self.local_search(curr_solution, neighborhood, step_function, initial_obj=obj)
 
             if loc_obj < best_obj:
                 best_sol = loc_sol
                 best_obj = loc_obj
 
             obj_over_time.append(ObjIter(best_obj, i))
+
+            if max_iterations > 0:
+                if i >= max_iterations:
+                    break
+            if max_time_in_s > 0:
+                curr_time = time.time()
+                if curr_time - start > max_time_in_s:
+                    break
+
+            i += 1
         # ========================================
         end = time.time()
 
         stats = Stats(title="GRASP, " + str(step_function) + ", " + str(neighborhood), start_time=start, end_time=end,
-                      iterations=max_iter,
+                      iterations=i,
                       final_objective=best_obj, obj_over_time=obj_over_time)
 
         return best_sol, stats
@@ -553,6 +560,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         x_temp = self.x.tolist()
         V_rem = self.inst.V.copy()
         u_i = 1
+        start = time.time()
         while u_i <= len(self.inst.U):  # iterates |U| times
             # Get the vertex with maximum weight to the vertical counterpart u_i
             v_i = self.get_max_weight_vertex(V_rem, u_i)  # O(|E|)
@@ -577,18 +585,27 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                 self.remove_resolved_constraints(x_temp, violated_constraints)  # O(|violated_constraints|)
 
             u_i += 1
+        end = time.time()
 
         self.x = np.array(x_temp)
+        self.check()
+
+        obj = self.calc_objective()
+
+        return x_temp, obj, Stats(title="Deterministic CH", start_time=start, end_time=end,
+                                  iterations=-1,
+                                  final_objective=obj, obj_over_time=[obj, 0])
 
     def randomized_construction_heuristic(self):
         self.initialize(-1)
-        x_temp: []
-        x_temp = self.x.tolist()
+        x_temp: [] = self.x.tolist()
         V_rem = self.inst.V.copy()
         # -- Get a list of remaining elements that need a partner
         U_ = list(range(1, len(V_rem) + 1))
         # seed the randomness with the current time
         # --
+
+        start = time.time()
         while U_:
             # -- Get a random element u_i from U_
             u_i = random.choice(U_)
@@ -617,8 +634,16 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             u_i += 1
             # Update U_ (also in case items were moved because of violations of constraints)
             U_ = self.get_remaining_vertices_of_U(x_temp)
+        end = time.time()
 
         self.x = np.array(x_temp)
+        self.check()
+
+        obj = self.calc_objective()
+
+        return x_temp, obj, Stats(title="Randomized CH", start_time=start, end_time=end,
+                                  iterations=-1,
+                                  final_objective=obj, obj_over_time=[obj, 0])
 
     def get_max_weight_vertex(self, V_rem, u_i):
         best_v = None

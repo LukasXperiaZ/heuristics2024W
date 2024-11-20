@@ -78,47 +78,37 @@ class DCH(unittest.TestCase):
     def test_deterministic_construction_heuristic_simple(self):
         mwccp_instance = read_instance("../data/test_instances/test")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        mwccp_solution.deterministic_construction_heuristic()
-        mwccp_solution.check()
-        print("Solution: " + str(mwccp_solution.x))
-        obj_value = mwccp_solution.calc_objective()
+        sol, obj_value, stats = mwccp_solution.deterministic_construction_heuristic()
+        print("Solution: " + str(sol))
         print("Obj value: " + str(obj_value))
 
     def test_deterministic_construction_heuristic_complicated(self):
         mwccp_instance = read_instance("../data/test_instances/test_1")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        mwccp_solution.deterministic_construction_heuristic()
-        mwccp_solution.check()
-        print("Solution: " + str(mwccp_solution.x))
-        obj_value = mwccp_solution.calc_objective()
+        sol, obj_value, stats = mwccp_solution.deterministic_construction_heuristic()
+        print("Solution: " + str(sol))
         assert (obj_value == 28)
         print("Obj value: " + str(obj_value))
 
     def test_deterministic_construction_heuristic_small(self):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        mwccp_solution.deterministic_construction_heuristic()
-        mwccp_solution.check()
-        print("Solution: " + str(mwccp_solution.x))
-        obj_value = mwccp_solution.calc_objective()
+        sol, obj_value, stats = mwccp_solution.deterministic_construction_heuristic()
+        print("Solution: " + str(sol))
         print("Obj value: " + str(obj_value))
 
     def test_deterministic_construction_heuristic_medium(self):
         mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        mwccp_solution.deterministic_construction_heuristic()
-        mwccp_solution.check()
-        print("Solution: " + str(mwccp_solution.x))
-        obj_value = mwccp_solution.calc_objective()
+        sol, obj_value, stats = mwccp_solution.deterministic_construction_heuristic()
+        print("Solution: " + str(sol))
         print("Obj value: " + str(obj_value))
 
     def test_deterministic_construction_heuristic_medium_large(self):
         mwccp_instance = read_instance("../data/test_instances/medium_large/inst_500_40_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        mwccp_solution.deterministic_construction_heuristic()
-        mwccp_solution.check()
-        print("Solution: " + str(mwccp_solution.x))
-        obj_value = mwccp_solution.calc_objective()
+        sol, obj_value, stats = mwccp_solution.deterministic_construction_heuristic()
+        print("Solution: " + str(sol))
         print("Obj value: " + str(obj_value))
 
     """
@@ -143,46 +133,36 @@ class RCH(unittest.TestCase):
     def test_randomized_construction_heuristic_simple(self):
         mwccp_instance = read_instance("../data/test_instances/test")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        mwccp_solution.randomized_construction_heuristic()
-        mwccp_solution.check()
-        print("Solution: " + str(mwccp_solution.x))
-        obj_value = mwccp_solution.calc_objective()
+        sol, obj_value, stats = mwccp_solution.randomized_construction_heuristic()
+        print("Solution: " + str(sol))
         print("Obj value: " + str(obj_value))
 
     def test_randomized_construction_heuristic_complicated(self):
         mwccp_instance = read_instance("../data/test_instances/test_1")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        mwccp_solution.randomized_construction_heuristic()
-        mwccp_solution.check()
-        print("Solution: " + str(mwccp_solution.x))
-        obj_value = mwccp_solution.calc_objective()
+        sol, obj_value, stats = mwccp_solution.randomized_construction_heuristic()
+        print("Solution: " + str(sol))
         print("Obj value: " + str(obj_value))
 
     def test_randomized_construction_heuristic_small(self):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        mwccp_solution.randomized_construction_heuristic()
-        mwccp_solution.check()
-        print("Solution: " + str(mwccp_solution.x))
-        obj_value = mwccp_solution.calc_objective()
+        sol, obj_value, stats = mwccp_solution.randomized_construction_heuristic()
+        print("Solution: " + str(sol))
         print("Obj value: " + str(obj_value))
 
     def test_randomized_construction_heuristic_medium(self):
         mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        mwccp_solution.randomized_construction_heuristic()
-        mwccp_solution.check()
-        print("Solution: " + str(mwccp_solution.x))
-        obj_value = mwccp_solution.calc_objective()
+        sol, obj_value, stats = mwccp_solution.randomized_construction_heuristic()
+        print("Solution: " + str(sol))
         print("Obj value: " + str(obj_value))
 
     def test_randomized_construction_heuristic_medium_large(self):
         mwccp_instance = read_instance("../data/test_instances/medium_large/inst_500_40_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
-        mwccp_solution.randomized_construction_heuristic()
-        mwccp_solution.check()
-        print("Solution: " + str(mwccp_solution.x))
-        obj_value = mwccp_solution.calc_objective()
+        sol, obj_value, stats = mwccp_solution.randomized_construction_heuristic()
+        print("Solution: " + str(sol))
         print("Obj value: " + str(obj_value))
 
 
@@ -211,7 +191,6 @@ class Neighborhoods(unittest.TestCase):
         mwccp_instance = read_instance("../data/test_instances/test")
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.deterministic_construction_heuristic()
-        mwccp_solution.check()
         print("Solution: " + str(mwccp_solution.x))
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
@@ -228,7 +207,6 @@ class Neighborhoods(unittest.TestCase):
         mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00001")
         mwccp_solution = MWCCPSolution(mwccp_instance)
         mwccp_solution.deterministic_construction_heuristic()
-        mwccp_solution.check()
         print("Solution: " + str(mwccp_solution.x))
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
@@ -535,17 +513,17 @@ class GRASP(unittest.TestCase):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
-        max_iterations = 1000
+        max_time = 10
         solution_best, stats_best = mwccp_solution.grasp(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                         StepFunction.best_improvement, max_iterations=max_iterations)
-        stats_best.show_plot()
+                                                         StepFunction.best_improvement, max_time_in_s=max_time)
+        stats_best.show_plot("inst_50_4_00002")
 
     def test_GRASP_medium(self):
         mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00002")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
         # NOTE: The larger the instances get, the longer one iteration is going to last.
-        max_iterations = 100
+        max_time = 10
         solution_best, stats_best = mwccp_solution.grasp(MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                         StepFunction.best_improvement, max_iterations=max_iterations)
-        stats_best.show_plot()
+                                                         StepFunction.best_improvement, max_time_in_s=max_time)
+        stats_best.show_plot("inst_200_20_00002")

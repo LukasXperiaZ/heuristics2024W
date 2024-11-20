@@ -7,9 +7,6 @@ def read_instance(path: str) -> MWCCPInstance:
     print("-- read_instance: " + "Reading File ...")
     with open(path, 'r') as instance:
         lines = instance.read().splitlines()
-    print("-- read_instance: " + "File read!")
-
-    print("-- read_instance: " + "Starting conversion into an MWCCPInstance ...")
     # --- Process first line ---
     u_n, v_n, c_n, e_n = map(int, lines[0].split())
 
@@ -42,6 +39,6 @@ def read_instance(path: str) -> MWCCPInstance:
             u, v, w = map(int, line.split())
             E.append((u, v, w))
     # --- --- --- --- --- ---
-    print("-- read_instance: " + "Conversion finished!")
+    print("-- read_instance: " + "Reading and conversion finished!")
 
     return MWCCPInstance(U, V, C, E)
