@@ -4,7 +4,7 @@ from ex1.MWCCP import MWCCPInstance
 
 
 def read_instance(path: str) -> MWCCPInstance:
-    print("-- read_instance: " + "Reading File ...")
+    #print("-- read_instance: " + "Reading File ...")
     with open(path, 'r') as instance:
         lines = instance.read().splitlines()
     # --- Process first line ---
@@ -39,6 +39,6 @@ def read_instance(path: str) -> MWCCPInstance:
             u, v, w = map(int, line.split())
             E.append((u, v, w))
     # --- --- --- --- --- ---
-    print("-- read_instance: " + "Reading and conversion finished!")
+    #print("-- read_instance: " + "Reading and conversion finished!")
 
     return MWCCPInstance(U, V, C, E)

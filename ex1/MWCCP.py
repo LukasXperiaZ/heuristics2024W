@@ -75,11 +75,11 @@ class MWCCPInstance:
         self.adj_matrix = self.create_bipartite_adjacency_matrix()
         self.create_edges_from_u_and_v()
 
-        print("-- -- MWCCPInstance: " + "Calculating the precomputed values of pairs of vertices ...")
+        #print("-- -- MWCCPInstance: " + "Calculating the precomputed values of pairs of vertices ...")
         start = time.time()
         self.pre_comp_val = self.precompute_values_of_pairs_of_vertices()
         end = time.time()
-        print("-- -- MWCCPInstance: " + "Precomputed values of pairs of vertices finished in: " + f"{(end-start):.6f}s")
+        #print("-- -- MWCCPInstance: " + "Precomputed values of pairs of vertices finished in: " + f"{(end-start):.6f}s")
 
     def precompute_values_of_pairs_of_vertices(self):
         pre_comp_val: dict[int, dict] = {}
@@ -152,6 +152,15 @@ class MWCCPInstance:
             if not v in self.edges_from_v:
                 self.edges_from_v[v] = []
             self.edges_from_v[v].append((u, w))
+
+        # If there is no edge adjacent to v, give it an empty list
+        for v in self.V:
+            if v not in self.edges_from_v:
+                self.edges_from_v[v] = []
+        # If there is no edge adjacent to u, give it an empty list
+        for u in self.U:
+            if u not in self.edges_from_u:
+                self.edges_from_u[u] = []
 
 
 class MWCCPSolution(VectorSolution, LocalSearchSolution):
