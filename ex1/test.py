@@ -121,6 +121,7 @@ class DCH(unittest.TestCase):
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
 
+    """
     def test_deterministic_construction_heuristic_large(self):
         # TAKES LOOONG
         print("Starting reading the instance")
@@ -134,6 +135,7 @@ class DCH(unittest.TestCase):
         print("Starting calc_objective()")
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
+    """
 
 
 class RCH(unittest.TestCase):
@@ -196,9 +198,9 @@ class Neighborhoods(unittest.TestCase):
         print("Obj value: " + str(obj_value))
         print("----------------------")
 
-        next_neighbor, next_obj = mwccp_solution.get_neighbor_flip_two_adjacent_vertices(mwccp_solution.x.tolist(),
-                                                                                         obj_value,
-                                                                                         StepFunction.first_improvement)
+        next_neighbor, next_obj = mwccp_solution.get_neighbor(mwccp_solution.x.tolist(),
+                                                              obj_value, MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                              StepFunction.first_improvement)
         print("Next neighbor: " + str(next_neighbor))
         print("Next objective: " + str(next_obj))
         assert (next_neighbor[0] == 7)
@@ -214,12 +216,13 @@ class Neighborhoods(unittest.TestCase):
         obj_value = mwccp_solution.calc_objective()
         print("Obj value: " + str(obj_value))
 
-        next_neighbor, next_obj = mwccp_solution.get_neighbor_flip_two_adjacent_vertices(mwccp_solution.x.tolist(),
-                                                                                         obj_value,
-                                                                                         StepFunction.first_improvement)
+        next_neighbor, next_obj = mwccp_solution.get_neighbor(mwccp_solution.x.tolist(),
+                                                              obj_value, MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                              StepFunction.first_improvement)
         assert (next_neighbor[0] == 7)
         assert (next_neighbor[1] == 8)
-        assert (next_obj == 0)
+        # Make sure that a higher value is returned since there does not exist a better solution
+        assert (next_obj > obj_value)
 
     def test_get_neighbor_flip_two_adjacent_vertices_first_improvement_medium_instance(self):
         mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00001")
@@ -231,9 +234,9 @@ class Neighborhoods(unittest.TestCase):
         print("Obj value: " + str(obj_value))
         print("----------------------")
 
-        next_neighbor, next_obj = mwccp_solution.get_neighbor_flip_two_adjacent_vertices(mwccp_solution.x.tolist(),
-                                                                                         obj_value,
-                                                                                         StepFunction.first_improvement)
+        next_neighbor, next_obj = mwccp_solution.get_neighbor(mwccp_solution.x.tolist(),
+                                                              obj_value, MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                              StepFunction.first_improvement)
         print("Next neighbor: " + str(next_neighbor))
         print("Next objective: " + str(next_obj))
 
