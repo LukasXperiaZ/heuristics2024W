@@ -7,6 +7,14 @@ class StepFunction(Enum):
     best_improvement = 2
     random = 3
 
+    def __str__(self):
+        if self == StepFunction.first_improvement:
+            return "first"
+        elif self == StepFunction.best_improvement:
+            return "best"
+        else:
+            return "random"
+
 
 class LocalSearchSolution(ABC):
     """

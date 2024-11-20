@@ -46,7 +46,7 @@ class Stats:
         print("Iterations: " + str(self.iterations))
         print("Final objective: " + str(self.final_objective))
 
-    def show_plot(self):
+    def show_plot(self, title):
         x_points = list(range(len(self.obj_over_time)))
         y_points = []
         for i in range(len(self.obj_over_time)):
@@ -58,7 +58,7 @@ class Stats:
 
         plt.xlabel("Iterations")
         plt.ylabel("Objective Value")
-        plt.title(self.title)
+        plt.title(self.title + ", " + title)
         description = "Runtime: " + f"{self.get_run_time():.5f}s" + "\n" + "Iterations: " + str(
             self.iterations) + "\n" + "Final objective: " + str(self.final_objective)
         plt.text(0.95, 0.95, description,

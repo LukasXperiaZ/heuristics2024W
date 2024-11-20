@@ -8,7 +8,7 @@ from pymhlib.solution import VectorSolution
 from ex1.evaluation import ObjIter, Stats
 from ex1.local_search import StepFunction, LocalSearchSolution
 
-obj_no_better_sol_found = 999999999999999
+obj_huge = 999999999999999999999999999999999999999
 
 
 class MWCCPNeighborhoods(Enum):
@@ -19,11 +19,21 @@ class MWCCPNeighborhoods(Enum):
     # Flip two adjacent vertices v1 v2 -> v2 v1
     flip_two_adjacent_vertices = 1
 
-    # Rotate the solution to the right
-    rotate_to_the_right = 2
+    # Flip three adjacent vertices (2 times flip two adjacent vertices):
+    # v1 v2 v3 -> v2 v1 v3 -> v2 v3 v1
+    flip_three_adjacent_vertices = 2
 
-    # Move a vertex v from position i to position k (i != k)
-    move_vertex_to_position = 3
+    # Flip four adjacent vertices (3 times flip two adjacent vertices:
+    # v1 v2 v3 v4 -> v2 v1 v3 v4 -> v2 v3 v1 v4 -> v2 v3 v4 v1
+    flip_four_adjacent_vertices = 3
+
+    def __str__(self):
+        if self == MWCCPNeighborhoods.flip_two_adjacent_vertices:
+            return "flip_two_adj"
+        elif self == MWCCPNeighborhoods.flip_three_adjacent_vertices:
+            return "flip_three_adj"
+        else:
+            return "flip_four_adj"
 
 
 class MWCCPInstance:
@@ -94,39 +104,6 @@ class MWCCPInstance:
                             for (u2, w2) in self.edges_from_v[v2]:
                                 if u1 > u2:
                                     pre_comp_val[v1][v2] += w1 + w2
-
-        """
-        # Took 1.59
-        # initialization
-        for i in range(len(self.V)):
-            v = self.V[i]
-            pre_comp_val[v] = {}
-
-        for i in range(len(self.V)):
-            v1 = self.V[i]
-            for j in range(i + 1, len(self.V)):
-                v2 = self.V[j]
-
-                # v1 v2
-                pre_comp_val[v1][v2] = 0
-                # Assume v1 is left of v2, compute the resulting value.
-
-                # Iterate over all pairs of edges adjacent to v1 and v2
-                for (u1, w1) in self.edges_from_v[v1]:
-                    for (u2, w2) in self.edges_from_v[v2]:
-                        if u1 > u2:
-                            pre_comp_val[v1][v2] += w1 + w2
-
-                # v2 v1
-                pre_comp_val[v2][v1] = 0
-                # Assume v2 is left of v1, compute the resulting value.
-
-                # Iterate over all pairs of edges adjacent to v2 and v1
-                for (u2, w2) in self.edges_from_v[v2]:
-                    for (u1, w1) in self.edges_from_v[v1]:
-                        if u1 < u2:
-                            pre_comp_val[v2][v1] += w1 + w2
-        """
 
         return pre_comp_val
 
@@ -311,24 +288,14 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
     def get_neighbor(self, current_solution: [int], current_obj: int, neighborhood: MWCCPNeighborhoods,
                      step_function: StepFunction) -> ([int], int):
-        if neighborhood == MWCCPNeighborhoods.flip_two_adjacent_vertices:
-            return self.get_neighbor_flip_two_adjacent_vertices(current_solution, current_obj, step_function)
-        elif neighborhood == MWCCPNeighborhoods.rotate_to_the_right:
-            return self.get_neighbor_rotate_to_the_right(current_solution, current_obj, step_function)
-        elif neighborhood == MWCCPNeighborhoods.move_vertex_to_position:
-            return self.get_neighbor_move_vertex_to_position(current_solution, current_obj, step_function)
-        else:
-            raise ValueError("Neighborhood is not specified!")
 
-    def get_neighbor_flip_two_adjacent_vertices(self, current_solution: [int], current_obj: int,
-                                                step_function: StepFunction):
         if step_function == StepFunction.first_improvement:
             """
             First improvement strategy
             """
-            current_sol = current_solution.copy()
+            curr_sol = current_solution.copy()
             for i in range(len(current_solution) - 1):
-                next_neighbor, next_obj = self.flip_two_adjacent_vertices(current_obj, current_sol, i)
+                next_neighbor, next_obj = self.get_neighbor_neighborhood(curr_sol, current_obj, neighborhood, i)
 
                 if not self.is_valid_solution(next_neighbor):
                     # If the next neighbor violates some constraints, move to the next one
@@ -347,7 +314,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             curr_sol = current_solution.copy()
             curr_obj = current_obj
             for i in range(len(current_solution) - 1):
-                next_neighbor, next_obj = self.flip_two_adjacent_vertices(current_obj, curr_sol, i)
+                next_neighbor, next_obj = self.get_neighbor_neighborhood(curr_sol, current_obj, neighborhood, i)
 
                 if not self.is_valid_solution(next_neighbor):
                     # If the next neighbor violates some constraints, move to the next one
@@ -357,7 +324,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                     curr_sol = next_neighbor
                     curr_obj = next_obj
 
-            if curr_sol == current_solution:
+            if curr_obj == current_obj:
                 # no better solution was found, return a bad objective value to indicate that the old solution is the
                 # global maximum
                 return (current_solution, (current_obj + 100) * 100)
@@ -373,16 +340,28 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                 # Select a neighbor at random
                 # If the current solution is not valid, we try the next possibility until we enumerated all possibilities
                 next_index = (j + i) % (len(curr_sol) - 1)
-                next_neighbor, next_obj = self.flip_two_adjacent_vertices(current_obj, curr_sol, next_index)
+                next_neighbor, next_obj = self.get_neighbor_neighborhood(curr_sol, current_obj, neighborhood,
+                                                                         next_index)
                 if self.is_valid_solution(next_neighbor):
                     return (next_neighbor, next_obj)
 
             # No better solution found
-            return (current_solution, obj_no_better_sol_found)
+            return (current_solution, obj_huge)
         else:
             raise ValueError("Step function is not specified!")
 
-    def flip_two_adjacent_vertices(self, obj_old, sol_old, i):
+    def get_neighbor_neighborhood(self, current_solution: [int], current_obj: int,
+                                  neighborhood: MWCCPNeighborhoods, index: int):
+        if neighborhood == MWCCPNeighborhoods.flip_two_adjacent_vertices:
+            return self.flip_two_adjacent_vertices(current_solution, current_obj, index)
+        elif neighborhood == MWCCPNeighborhoods.flip_three_adjacent_vertices:
+            return self.flip_three_adjacent_vertices(current_solution, current_obj, index)
+        elif neighborhood == MWCCPNeighborhoods.flip_four_adjacent_vertices:
+            return self.flip_four_adjacent_vertices(current_solution, current_obj, index)
+        else:
+            raise ValueError("Neighborhood is not specified!")
+
+    def flip_two_adjacent_vertices(self, sol_old, obj_old, i):
         """
         Get the objective value by using delta evaluation for the neighbor where two adjacent vertices were flipped.
         When flipping two adjacent vertices v1, v2, all the orders to the other vertices stay the same (e.g. if we have
@@ -408,14 +387,29 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         return (next_neighbor, new_obj_val)
 
-    def get_neighbor_rotate_to_the_right(self, current_solution: [int], current_obj: int, step_function: StepFunction):
-        # TODO
-        raise NotImplementedError
+    def flip_three_adjacent_vertices(self, sol_old, obj_old, i):
+        # Check if the index is too large
+        last_index = len(sol_old) - 1
+        index_for_flip_two = i + 1
+        if index_for_flip_two + 1 > last_index:
+            return (sol_old, obj_huge)
 
-    def get_neighbor_move_vertex_to_position(self, current_solution: [int], current_obj: int,
-                                             step_function: StepFunction):
-        # TODO
-        raise NotImplementedError
+        # Flip three adjacent vertices (2 times flip two adjacent vertices):
+        # v1 v2 v3 -> v2 v1 v3 -> v2 v3 v1
+        temp_neighbor, temp_obj = self.flip_two_adjacent_vertices(sol_old, obj_old, i)
+        return self.flip_two_adjacent_vertices(temp_neighbor, temp_obj, i + 1)
+
+    def flip_four_adjacent_vertices(self, sol_old, obj_old, i):
+        # Check if the index is too large
+        last_index = len(sol_old) - 1
+        index_for_flip_two = i + 2
+        if index_for_flip_two + 1 > last_index:
+            return (sol_old, obj_huge)
+
+        # Flip four adjacent vertices (3 times flip two adjacent vertices:
+        # v1 v2 v3 v4 -> v2 v1 v3 v4 -> v2 v3 v1 v4 -> v2 v3 v4 v1
+        temp_neighbor, temp_obj = self.flip_three_adjacent_vertices(sol_old, obj_old, i)
+        return self.flip_two_adjacent_vertices(temp_neighbor, temp_obj, i + 2)
 
     def local_search(self, initial_solution: [int], neighborhood: MWCCPNeighborhoods, step_function: StepFunction,
                      max_iterations: int = -1, max_time_in_s: int = -1):
@@ -425,8 +419,6 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         obj_over_time: [ObjIter] = [ObjIter(obj, 0)]
         curr_iter = 1
-
-        early_stop = False
 
         start = time.time()
         # =======================================
@@ -454,7 +446,6 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                 if step_function == step_function.first_improvement or step_function == step_function.best_improvement:
                     # If we have first or best improvement, that means that there is no better solution
                     # in the neighborhood -> we reached a local optimum which we can't escape from.
-                    early_stop = True
                     break
 
             obj_over_time.append(ObjIter(obj, curr_iter))
@@ -462,22 +453,14 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         # =======================================
         end = time.time()
 
-        """
-        if early_stop:
-            print("Terminated local search since a local maximum was reached after " + str(
-                obj_over_time[len(obj_over_time) - 1]) + " iterations.")
-        else:
-            print("Terminated local search due to the iteration constraint of: " + str(max_iterations))
-        """
-
-        stats = Stats(title=step_function.name, start_time=start, end_time=end, iterations=curr_iter,
+        stats = Stats(title=str(step_function) + ", " + str(neighborhood), start_time=start, end_time=end,
+                      iterations=curr_iter,
                       final_objective=obj, obj_over_time=obj_over_time)
 
         return solution, obj, stats
 
     def vnd(self, neighborhoods: [MWCCPNeighborhoods], step_function: StepFunction, max_iterations: int = -1,
             max_time_in_s: int = -1):
-        # TODO TEST with more than one neighborhood
         # Get the initial solution from the DCH
         self.deterministic_construction_heuristic()
         self.check()
@@ -525,7 +508,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         # =======================================
         end = time.time()
 
-        stats = Stats(title="VND + " + step_function.name, start_time=start, end_time=end, iterations=curr_iter,
+        stats = Stats(title="VND, " + str(step_function), start_time=start, end_time=end, iterations=curr_iter,
                       final_objective=curr_obj, obj_over_time=obj_over_time)
 
         return curr_solution, stats
@@ -558,7 +541,8 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         # ========================================
         end = time.time()
 
-        stats = Stats(title="GRASP + " + step_function.name, start_time=start, end_time=end, iterations=max_iter,
+        stats = Stats(title="GRASP, " + str(step_function) + ", " + str(neighborhood), start_time=start, end_time=end,
+                      iterations=max_iter,
                       final_objective=best_obj, obj_over_time=obj_over_time)
 
         return best_sol, stats

@@ -251,17 +251,19 @@ class LocalSearch(unittest.TestCase):
         print("\n----------- First improvement -----------")
         solution_first, _, stats_first = mwccp_solution.local_search(initial_solution,
                                                                      MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                     StepFunction.first_improvement, max_iterations=iterations)
+                                                                     StepFunction.first_improvement,
+                                                                     max_iterations=iterations)
         print("Solution after local search: " + str(solution_first))
-        stats_first.show_plot()
+        stats_first.show_plot("test")
         assert stats_first.final_objective == 0
 
         print("\n----------- Best Improvement -----------")
         solution_best, _, stats_best = mwccp_solution.local_search(initial_solution,
                                                                    MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                   StepFunction.best_improvement, max_iterations=iterations)
+                                                                   StepFunction.best_improvement,
+                                                                   max_iterations=iterations)
         print("Solution after local search: " + str(solution_best))
-        stats_best.show_plot()
+        stats_best.show_plot("test")
         assert stats_best.final_objective == 0
 
         print("\n----------- Random Improvement -----------")
@@ -269,7 +271,7 @@ class LocalSearch(unittest.TestCase):
                                                                    MWCCPNeighborhoods.flip_two_adjacent_vertices,
                                                                    StepFunction.random, max_iterations=iterations)
         print("Solution after local search: " + str(solution_rand))
-        stats_rand.show_plot()
+        stats_rand.show_plot("test")
         assert stats_rand.final_objective == 0
 
     def test_local_search_simple_local_maximum_already_reached(self):
@@ -283,17 +285,19 @@ class LocalSearch(unittest.TestCase):
         print("\n----------- First improvement -----------")
         solution_first, _, stats_first = mwccp_solution.local_search(initial_solution,
                                                                      MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                     StepFunction.first_improvement, max_iterations=iterations)
+                                                                     StepFunction.first_improvement,
+                                                                     max_iterations=iterations)
         print("Solution after local search: " + str(solution_first))
-        stats_first.show_plot()
+        stats_first.show_plot("test_1")
         assert stats_first.final_objective == 28
 
         print("\n----------- Best Improvement -----------")
         solution_best, _, stats_best = mwccp_solution.local_search(initial_solution,
                                                                    MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                   StepFunction.best_improvement, max_iterations=iterations)
+                                                                   StepFunction.best_improvement,
+                                                                   max_iterations=iterations)
         print("Solution after local search: " + str(solution_best))
-        stats_best.show_plot()
+        stats_best.show_plot("test_1")
         assert stats_best.final_objective == 28
 
         print("\n----------- Random Improvement -----------")
@@ -301,7 +305,7 @@ class LocalSearch(unittest.TestCase):
                                                                    MWCCPNeighborhoods.flip_two_adjacent_vertices,
                                                                    StepFunction.random, max_iterations=iterations)
         print("Solution after local search: " + str(solution_rand))
-        stats_rand.show_plot()
+        stats_rand.show_plot("test_1")
         assert stats_rand.final_objective == 28
 
     def test_local_search_small_1(self):
@@ -315,23 +319,25 @@ class LocalSearch(unittest.TestCase):
         print("\n----------- First improvement -----------")
         solution_first, _, stats_first = mwccp_solution.local_search(initial_solution,
                                                                      MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                     StepFunction.first_improvement, max_iterations=iterations)
+                                                                     StepFunction.first_improvement,
+                                                                     max_iterations=iterations)
         print("Solution after local search: " + str(solution_first))
-        stats_first.show_plot()
+        stats_first.show_plot("inst_50_4_00001")
 
         print("\n----------- Best Improvement -----------")
         solution_best, _, stats_best = mwccp_solution.local_search(initial_solution,
                                                                    MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                   StepFunction.best_improvement, max_iterations=iterations)
+                                                                   StepFunction.best_improvement,
+                                                                   max_iterations=iterations)
         print("Solution after local search: " + str(solution_best))
-        stats_best.show_plot()
+        stats_best.show_plot("inst_50_4_00001")
 
         print("\n----------- Random Improvement -----------")
         solution_rand, _, stats_rand = mwccp_solution.local_search(initial_solution,
                                                                    MWCCPNeighborhoods.flip_two_adjacent_vertices,
                                                                    StepFunction.random, max_iterations=iterations)
         print("Solution after local search: " + str(solution_rand))
-        stats_rand.show_plot()
+        stats_rand.show_plot("inst_50_4_00001")
 
         multi_stats = MultiStats([stats_first, stats_best, stats_rand])
         multi_stats.plot_stats("inst_50_4_00001, local search")
@@ -342,28 +348,88 @@ class LocalSearch(unittest.TestCase):
         mwccp_solution.deterministic_construction_heuristic()
         initial_solution = mwccp_solution.x.tolist()
 
-        iterations = 5000
+        max_time = 5
 
         print("\n----------- First improvement -----------")
         solution_first, _, stats_first = mwccp_solution.local_search(initial_solution,
                                                                      MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                     StepFunction.first_improvement, max_iterations=iterations)
+                                                                     StepFunction.first_improvement,
+                                                                     max_time_in_s=max_time)
         print("Solution after local search: " + str(solution_first))
 
         print("\n----------- Best Improvement -----------")
         solution_best, _, stats_best = mwccp_solution.local_search(initial_solution,
                                                                    MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                   StepFunction.best_improvement, max_iterations=iterations)
+                                                                   StepFunction.best_improvement,
+                                                                   max_time_in_s=max_time)
         print("Solution after local search: " + str(solution_best))
 
         print("\n----------- Random Improvement -----------")
         solution_rand, _, stats_rand = mwccp_solution.local_search(initial_solution,
                                                                    MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                   StepFunction.random, max_iterations=iterations)
+                                                                   StepFunction.random, max_time_in_s=max_time)
         print("Solution after local search: " + str(solution_rand))
 
         multi_stats = MultiStats([stats_first, stats_best, stats_rand])
         multi_stats.plot_stats("inst_200_20_00001, local search")
+
+    def test_local_search_different_neighborhoods_small(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00001")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        mwccp_solution.deterministic_construction_heuristic()
+        initial_solution = mwccp_solution.x.tolist()
+
+        iterations = 100
+
+        print("\n----------- Flip Two -----------")
+        _, _, stats_two = mwccp_solution.local_search(initial_solution,
+                                                      MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                      StepFunction.best_improvement,
+                                                      max_iterations=iterations)
+
+        print("\n----------- Flip Three -----------")
+        _, _, stats_three = mwccp_solution.local_search(initial_solution,
+                                                        MWCCPNeighborhoods.flip_three_adjacent_vertices,
+                                                        StepFunction.best_improvement,
+                                                        max_iterations=iterations)
+
+        print("\n----------- Flip Four -----------")
+        _, _, stats_four = mwccp_solution.local_search(initial_solution,
+                                                       MWCCPNeighborhoods.flip_four_adjacent_vertices,
+                                                       StepFunction.best_improvement,
+                                                       max_iterations=iterations)
+
+        multi_stats = MultiStats([stats_two, stats_three, stats_four])
+        multi_stats.plot_stats("inst_50_4_00001, local search")
+
+    def test_local_search_different_neighborhoods_medium_large(self):
+        mwccp_instance = read_instance("../data/test_instances/medium_large/inst_500_40_00004")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        mwccp_solution.deterministic_construction_heuristic()
+        initial_solution = mwccp_solution.x.tolist()
+
+        max_time = 5
+
+        print("\n----------- Flip Two -----------")
+        _, _, stats_two = mwccp_solution.local_search(initial_solution,
+                                                      MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                                                      StepFunction.best_improvement,
+                                                      max_time_in_s=max_time)
+
+        print("\n----------- Flip Three -----------")
+        _, _, stats_three = mwccp_solution.local_search(initial_solution,
+                                                        MWCCPNeighborhoods.flip_three_adjacent_vertices,
+                                                        StepFunction.best_improvement,
+                                                        max_time_in_s=max_time)
+
+        print("\n----------- Flip Four -----------")
+        _, _, stats_four = mwccp_solution.local_search(initial_solution,
+                                                       MWCCPNeighborhoods.flip_four_adjacent_vertices,
+                                                       StepFunction.best_improvement,
+                                                       max_time_in_s=max_time)
+
+        multi_stats = MultiStats([stats_two, stats_three, stats_four])
+        multi_stats.plot_stats("inst_50_4_00001, local search")
 
     def test_local_search_medium_1_time_constraint(self):
         mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00001")
@@ -376,13 +442,15 @@ class LocalSearch(unittest.TestCase):
         print("\n----------- First improvement -----------")
         solution_first, _, stats_first = mwccp_solution.local_search(initial_solution,
                                                                      MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                     StepFunction.first_improvement, max_time_in_s=max_time)
+                                                                     StepFunction.first_improvement,
+                                                                     max_time_in_s=max_time)
         print("Solution after local search: " + str(solution_first))
 
         print("\n----------- Best Improvement -----------")
         solution_best, _, stats_best = mwccp_solution.local_search(initial_solution,
                                                                    MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                                                                   StepFunction.best_improvement, max_time_in_s=max_time)
+                                                                   StepFunction.best_improvement,
+                                                                   max_time_in_s=max_time)
         print("Solution after local search: " + str(solution_best))
 
         print("\n----------- Random Improvement -----------")
@@ -404,16 +472,16 @@ class VND(unittest.TestCase):
         max_iterations = 500
         solution_best, stats_best = mwccp_solution.vnd([MWCCPNeighborhoods.flip_two_adjacent_vertices],
                                                        StepFunction.best_improvement, max_iterations=max_iterations)
-        stats_best.show_plot()
+        stats_best.show_plot("inst_50_4_00002")
 
-    def test_VND_only_one_neighborhood(self):
+    def test_VND_only_one_neighborhood_medium(self):
         mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00002")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
         max_iterations = 10000
         solution_best, stats_best = mwccp_solution.vnd([MWCCPNeighborhoods.flip_two_adjacent_vertices],
                                                        StepFunction.best_improvement, max_iterations=max_iterations)
-        stats_best.show_plot()
+        stats_best.show_plot("inst_200_20_00002")
 
     def test_VND_only_one_neighborhood_time_constraint(self):
         mwccp_instance = read_instance("../data/test_instances/medium_large/inst_500_40_00001")
@@ -422,7 +490,41 @@ class VND(unittest.TestCase):
         max_time = 10
         solution_best, stats_best = mwccp_solution.vnd([MWCCPNeighborhoods.flip_two_adjacent_vertices],
                                                        StepFunction.best_improvement, max_time_in_s=max_time)
-        stats_best.show_plot()
+        stats_best.show_plot("inst_500_40_00001")
+
+    def test_VND_small(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        # max_time = 10
+        max_iterations = 500
+        solution_best, stats_best = mwccp_solution.vnd(
+            [MWCCPNeighborhoods.flip_two_adjacent_vertices, MWCCPNeighborhoods.flip_three_adjacent_vertices,
+             MWCCPNeighborhoods.flip_four_adjacent_vertices],
+            StepFunction.best_improvement, max_iterations=max_iterations)  # max_time_in_s=max_time)
+        stats_best.show_plot("inst_50_4_00002")
+
+    def test_VND_medium(self):
+        mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00004")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        max_time = 5
+        solution_best, stats_best = mwccp_solution.vnd(
+            [MWCCPNeighborhoods.flip_two_adjacent_vertices, MWCCPNeighborhoods.flip_three_adjacent_vertices,
+             MWCCPNeighborhoods.flip_four_adjacent_vertices],
+            StepFunction.best_improvement, max_time_in_s=max_time)
+        stats_best.show_plot("inst_200_20_00004")
+
+    def test_VND_medium_large(self):
+        mwccp_instance = read_instance("../data/test_instances/medium_large/inst_500_40_00010")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        max_time = 10
+        solution_best, stats_best = mwccp_solution.vnd(
+            [MWCCPNeighborhoods.flip_two_adjacent_vertices, MWCCPNeighborhoods.flip_three_adjacent_vertices,
+             MWCCPNeighborhoods.flip_four_adjacent_vertices],
+            StepFunction.best_improvement, max_time_in_s=max_time)
+        stats_best.show_plot("inst_500_40_00010")
 
 
 class GRASP(unittest.TestCase):
