@@ -98,3 +98,34 @@ class MultiStats:
         plt.title("Comparison: " + title)
         plt.legend()
         plt.show()
+
+    def plot_avg_obj_over_time(self, title: str):
+        length = len(self.stats[0].obj_over_time)
+        for stat in self.stats:
+            if len(stat.obj_over_time) != length:
+                raise ValueError("Length mismatch of the stats!")
+
+
+        sum_stats_over_time = []
+        for i in range(len(self.stats[0].obj_over_time)):
+            sum_stats_over_time.append(ObjIter(0, i))
+            for stat in self.stats:
+                sum_stats_over_time[i].objective += stat.get_obj_over_time()[i].objective
+
+        avg_stats_over_time = []
+        for i in range(len(sum_stats_over_time)):
+            avg = sum_stats_over_time[i].objective / len(self.stats)
+            avg_stats_over_time.append(ObjIter(avg, i))
+
+        x_points = list(range(len(avg_stats_over_time)))
+        y_points = []
+        for i in range(len(avg_stats_over_time)):
+            y_points.append(avg_stats_over_time[i].objective)
+
+        plt.plot(x_points, y_points, label="avg", marker='o')
+        plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+        plt.xlabel("Iterations")
+        plt.ylabel("Objective Value")
+        plt.title("Avg obj over time: " + title)
+        plt.legend()
+        plt.show()
