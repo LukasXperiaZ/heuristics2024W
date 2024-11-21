@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from networkx.classes import edges
 
 from ex1.MWCCP import MWCCPInstance
@@ -41,4 +43,4 @@ def read_instance(path: str) -> MWCCPInstance:
     # --- --- --- --- --- ---
     #print("-- read_instance: " + "Reading and conversion finished!")
 
-    return MWCCPInstance(U, V, C, E)
+    return MWCCPInstance(path, U, V, C, E)

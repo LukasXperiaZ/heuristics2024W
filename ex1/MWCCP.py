@@ -1,3 +1,5 @@
+import json
+import pickle
 import random
 import time
 from enum import Enum
@@ -50,6 +52,8 @@ class MWCCPInstance:
         - E: set of edges (u,v)
     """
 
+    path: str
+
     U: [int]
     V: [int]
     C: [(int, int)]
@@ -65,7 +69,8 @@ class MWCCPInstance:
     #           and determine whether v1 is left or right of v2 and add the precomputed sum of intersecting edges.
     pre_comp_val: dict[int, dict]
 
-    def __init__(self, U, V, C, E):
+    def __init__(self, path, U, V, C, E):
+        self.path = path
         self.U = U
         self.V = V
         self.C = C
@@ -75,11 +80,15 @@ class MWCCPInstance:
         self.adj_matrix = self.create_bipartite_adjacency_matrix()
         self.create_edges_from_u_and_v()
 
-        #print("-- -- MWCCPInstance: " + "Calculating the precomputed values of pairs of vertices ...")
-        start = time.time()
-        self.pre_comp_val = self.precompute_values_of_pairs_of_vertices()
-        end = time.time()
-        #print("-- -- MWCCPInstance: " + "Precomputed values of pairs of vertices finished in: " + f"{(end-start):.6f}s")
+        # print("-- -- MWCCPInstance: " + "Calculating the precomputed values of pairs of vertices ...")
+        # start = time.time()
+        pre_comp_path = path + "_pre_comp_val.pkl"
+        if not self.read_precomputed_values(pre_comp_path):
+            # The precomputed values are not saved yet, precompute and save them.
+            self.pre_comp_val = self.precompute_values_of_pairs_of_vertices()
+            self.write_precomputed_values(pre_comp_path, self.pre_comp_val)
+        # end = time.time()
+        # print("-- -- MWCCPInstance: " + "Precomputed values of pairs of vertices finished in: " + f"{(end-start):.6f}s")
 
     def precompute_values_of_pairs_of_vertices(self):
         pre_comp_val: dict[int, dict] = {}
@@ -101,6 +110,20 @@ class MWCCPInstance:
                                     pre_comp_val[v1][v2] += w1 + w2
 
         return pre_comp_val
+
+    def read_precomputed_values(self, file_path):
+        try:
+            with open(file_path, "rb") as file:
+                pre_compute_values = pickle.load(file)
+                self.pre_comp_val = pre_compute_values
+        except FileNotFoundError:
+            return False
+
+        return True
+
+    def write_precomputed_values(self, file_path, pre_comp_val: dict[int, dict]):
+        with open(file_path, "wb") as file:
+            pickle.dump(pre_comp_val, file)
 
     def create_bipartite_adjacency_matrix(self):
         """
