@@ -40,11 +40,13 @@ class Stats:
     def get_obj_over_time(self):
         return self.obj_over_time
 
-    def print_stats(self):
+    def print_stats(self, title: str):
         print("===== Stats =====")
+        print("*** " + title + " ***")
         print("Runtime: " + str(self.get_run_time()))
         print("Iterations: " + str(self.iterations))
         print("Final objective: " + str(self.final_objective))
+        print("===== ===== =====")
 
     def show_plot(self, title):
         x_points = list(range(len(self.obj_over_time)))

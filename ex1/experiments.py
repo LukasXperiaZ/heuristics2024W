@@ -708,3 +708,72 @@ class LocalSearch(unittest.TestCase):
         multi_stats = MultiStats(stats_list)
         multi_stats.plot_stats("first instance")
         print("============== === ==============")
+
+
+class VND(unittest.TestCase):
+    def test_VND_small(self):
+        directory = "../data/test_instances/small/"
+        max_runtime = 60  # 1 minute max
+        self.VND_experiment(directory, max_runtime, False)
+
+    def test_VND_medium(self):
+        directory = "../data/test_instances/medium/"
+        max_runtime = 60
+        self.VND_experiment(directory, max_runtime, False)
+
+    def test_VND_medium_large(self):
+        directory = "../data/test_instances/medium_large/"
+        max_runtime = 60
+        self.VND_experiment(directory, max_runtime, False)
+
+    def test_VND_large(self):
+        directory = "../data/test_instances/large/"
+        max_runtime = 60
+        self.VND_experiment(directory, max_runtime, False)
+
+
+    def VND_experiment(self, directory: str, max_runtime: int, only_plot: bool
+                       ):
+        neighborhoods = [MWCCPNeighborhoods.flip_two_adjacent_vertices, MWCCPNeighborhoods.flip_three_adjacent_vertices,
+                         MWCCPNeighborhoods.flip_four_adjacent_vertices]
+        step_function = StepFunction.first_improvement
+
+        stats_to_plot = None
+        test_name = ""
+
+        obj_values = []
+        runtimes = []
+        iterations = []
+
+        for test in os.listdir(directory):
+            if test.endswith(".pkl"):
+                continue
+            if only_plot:
+                if stats_to_plot is not None:
+                    break
+            path = directory + test
+            mwccp_instance = read_instance(path)
+            mwccp_solution = MWCCPSolution(mwccp_instance)
+            solution, stats = mwccp_solution.vnd(neighborhoods, step_function, max_time_in_s=max_runtime)
+            stats.print_stats(test)
+            obj_values.append(stats.get_final_objective())
+            runtimes.append(stats.get_run_time())
+            iterations.append(stats.get_iterations())
+
+            if stats_to_plot is None:
+                stats_to_plot = stats
+                test_name = test
+
+        obj_avg = np.mean(obj_values)
+        runtime_avg = np.mean(runtimes)
+        runtime_std = np.std(runtimes)
+        iterations_avg = np.mean(iterations)
+        iterations_std = np.std(iterations)
+        print("#################### Averages ####################")
+        print("Average objective value: " + f"{obj_avg:.1f}")
+        print("Average time : " + f"{runtime_avg:.6f}s, with std: " + f"{runtime_std:.4f}s")
+        print("Average iterations: " + f"{iterations_avg:.1f}, with std: " + f"{iterations_std:.4f}s")
+        print("#################### #################### ####################")
+
+
+        stats_to_plot.show_plot(test_name)
