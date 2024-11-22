@@ -1,4 +1,3 @@
-import json
 import pickle
 import random
 import time
@@ -545,7 +544,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         return curr_solution, stats
 
     def grasp(self, neighborhood: MWCCPNeighborhoods, step_function: StepFunction, max_iterations: int = -1,
-              max_time_in_s: int = -1):
+              max_time_in_s: int = -1, max_iter_local_search: int = -1):
         best_sol = None
         best_obj = obj_huge
 
@@ -560,7 +559,8 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             curr_solution: [int] = sol
 
             # Run a local search to get a local maximum
-            loc_sol, loc_obj, _ = self.local_search(curr_solution, neighborhood, step_function, initial_obj=obj)
+            loc_sol, loc_obj, _ = self.local_search(curr_solution, neighborhood, step_function, initial_obj=obj,
+                                                    max_iterations=max_iter_local_search)
 
             if loc_obj < best_obj:
                 best_sol = loc_sol
