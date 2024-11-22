@@ -9,7 +9,7 @@ from ex1.local_search import StepFunction
 from ex1.read_instance import read_instance
 
 
-class Experiments(unittest.TestCase):
+class DCH_RCH_GRASP(unittest.TestCase):
 
     def test_deterministic_and_randomized_ch_and_GRASP_small(self):
         directory = "../data/test_instances/small/"
@@ -555,3 +555,156 @@ class Experiments(unittest.TestCase):
         multi_stats.plot_avg_obj_over_time("GRASP")
         print("============== === ==============")
         # === === === === === ===
+
+
+class LocalSearch(unittest.TestCase):
+    def test_local_search_small(self):
+        directory = "../data/test_instances/small/"
+        self.local_search_experiment(directory, False)
+
+    def test_local_search_medium(self):
+        directory = "../data/test_instances/medium/"
+        self.local_search_experiment(directory, False)
+
+    def test_local_search_medium_large(self):
+        directory = "../data/test_instances/medium_large/"
+        self.local_search_experiment(directory, False)
+
+    def test_local_search_large(self):
+        directory = "../data/test_instances/large/"
+        self.local_search_experiment(directory, False)
+
+    def local_search_experiment(self, directory: str, only_plot: bool):
+        stats_list = [None, None, None]
+
+        print("============== Best Improvement ==============")
+        step_function = StepFunction.best_improvement
+        max_time = 5
+
+        instances: [(MWCCPSolution, [], int)] = []
+        for test in os.listdir(directory):
+            if test.endswith(".pkl"):
+                continue
+            path = directory + test
+            mwccp_instance = read_instance(path)
+            mwccp_solution = MWCCPSolution(mwccp_instance)
+            initial_solution, obj, _ = mwccp_solution.deterministic_construction_heuristic()
+            instances.append((mwccp_solution, initial_solution, obj))
+
+        for neighborhood in MWCCPNeighborhoods:
+            runtimes_config = []
+            obj_values_config = []
+            iterations_config = []
+            for (mwccp_solution, initial_solution, obj) in instances:
+                if only_plot:
+                    if stats_list[0] is not None:
+                        break
+                sol, obj, stats = mwccp_solution.local_search(initial_solution, neighborhood, step_function,
+                                                              initial_obj=obj, max_time_in_s=max_time)
+                runtimes_config.append(stats.get_run_time())
+                obj_values_config.append(obj)
+                iterations_config.append(stats.get_iterations())
+                if stats_list[0] is None:
+                    stats_list[0] = stats
+
+            obj_avg = np.mean(obj_values_config)
+            runtime_avg = np.mean(runtimes_config)
+            runtime_std = np.std(runtimes_config)
+            iterations_avg = np.mean(iterations_config)
+            iterations_std = np.std(iterations_config)
+            print("#################### " + str(neighborhood) + " ####################")
+            print("Average objective value: " + f"{obj_avg:.1f}")
+            print("Average time : " + f"{runtime_avg:.6f}s, with std: " + f"{runtime_std:.4f}s")
+            print("Average iterations: " + f"{iterations_avg:.1f}, with std: " + f"{iterations_std:.4f}s")
+            print("#################### #################### ####################")
+        print("============== === ==============")
+
+        print("============== First Improvement ==============")
+        step_function = StepFunction.first_improvement
+        max_time = 5
+
+        instances: [(MWCCPSolution, [], int)] = []
+        for test in os.listdir(directory):
+            if test.endswith(".pkl"):
+                continue
+            path = directory + test
+            mwccp_instance = read_instance(path)
+            mwccp_solution = MWCCPSolution(mwccp_instance)
+            initial_solution, obj, _ = mwccp_solution.deterministic_construction_heuristic()
+            instances.append((mwccp_solution, initial_solution, obj))
+
+        for neighborhood in MWCCPNeighborhoods:
+            runtimes_config = []
+            obj_values_config = []
+            iterations_config = []
+            for (mwccp_solution, initial_solution, obj) in instances:
+                if only_plot:
+                    if stats_list[1] is not None:
+                        break
+                sol, obj, stats = mwccp_solution.local_search(initial_solution, neighborhood, step_function,
+                                                              initial_obj=obj, max_time_in_s=max_time)
+                runtimes_config.append(stats.get_run_time())
+                obj_values_config.append(obj)
+                iterations_config.append(stats.get_iterations())
+                if stats_list[1] is None:
+                    stats_list[1] = stats
+
+            obj_avg = np.mean(obj_values_config)
+            runtime_avg = np.mean(runtimes_config)
+            runtime_std = np.std(runtimes_config)
+            iterations_avg = np.mean(iterations_config)
+            iterations_std = np.std(iterations_config)
+            print("#################### " + str(neighborhood) + " ####################")
+            print("Average objective value: " + f"{obj_avg:.1f}")
+            print("Average time : " + f"{runtime_avg:.6f}s, with std: " + f"{runtime_std:.4f}s")
+            print("Average iterations: " + f"{iterations_avg:.1f}, with std: " + f"{iterations_std:.4f}s")
+            print("#################### #################### ####################")
+        print("============== === ==============")
+
+        print("============== Random ==============")
+        step_function = StepFunction.random
+        max_time = 1
+        repetitions = 10
+
+        instances: [(MWCCPSolution, [], int)] = []
+        for test in os.listdir(directory):
+            if test.endswith(".pkl"):
+                continue
+            path = directory + test
+            mwccp_instance = read_instance(path)
+            mwccp_solution = MWCCPSolution(mwccp_instance)
+            initial_solution, obj, _ = mwccp_solution.deterministic_construction_heuristic()
+            instances.append((mwccp_solution, initial_solution, obj))
+
+        for neighborhood in MWCCPNeighborhoods:
+            runtimes_config = []
+            obj_values_config = []
+            iterations_config = []
+            for i in range(repetitions):
+                for (mwccp_solution, initial_solution, obj) in instances:
+                    if only_plot:
+                        if stats_list[2] is not None:
+                            break
+                    sol, obj, stats = mwccp_solution.local_search(initial_solution, neighborhood, step_function,
+                                                                  initial_obj=obj, max_time_in_s=max_time)
+                    runtimes_config.append(stats.get_run_time())
+                    obj_values_config.append(obj)
+                    iterations_config.append(stats.get_iterations())
+                    if stats_list[2] is None:
+                        stats_list[2] = stats
+                i += 1
+
+            obj_avg = np.mean(obj_values_config)
+            runtime_avg = np.mean(runtimes_config)
+            runtime_std = np.std(runtimes_config)
+            iterations_avg = np.mean(iterations_config)
+            iterations_std = np.std(iterations_config)
+            print("#################### " + str(neighborhood) + " ####################")
+            print("Average objective value: " + f"{obj_avg:.1f}")
+            print("Average time : " + f"{runtime_avg:.6f}s, with std: " + f"{runtime_std:.4f}s")
+            print("Average iterations: " + f"{iterations_avg:.1f}, with std: " + f"{iterations_std:.4f}s")
+            print("#################### #################### ####################")
+
+        multi_stats = MultiStats(stats_list)
+        multi_stats.plot_stats("first instance")
+        print("============== === ==============")

@@ -81,10 +81,21 @@ class MultiStats:
         colors = ["blue", "green", "red", "yellow", "black", "cyan"]
         c = 0
 
+        min_n_iterations = self.stats[0].get_iterations()
         for stat in self.stats:
-            x_points = list(range(len(stat.obj_over_time)))
+            if stat.get_iterations() < min_n_iterations:
+                min_n_iterations = stat.get_iterations()
+
+        n_iterations = min_n_iterations * 10
+
+        for stat in self.stats:
+            x_points = list(range(len(stat.get_obj_over_time())))
+            if len(stat.obj_over_time) > n_iterations:
+                x_points = list(range(n_iterations))
             y_points = []
             for i in range(len(stat.obj_over_time)):
+                if i >= n_iterations:
+                    break
                 y_points.append(stat.obj_over_time[i].objective)
 
             plt.plot(x_points, y_points, label=stat.title + f", {stat.get_run_time():.5f}s", color=colors[c],
@@ -104,7 +115,6 @@ class MultiStats:
         for stat in self.stats:
             if len(stat.obj_over_time) != length:
                 raise ValueError("Length mismatch of the stats!")
-
 
         sum_stats_over_time = []
         for i in range(len(self.stats[0].obj_over_time)):

@@ -438,8 +438,11 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         return self.flip_two_adjacent_vertices(temp_neighbor, temp_obj, i + 2)
 
     def local_search(self, initial_solution: [int], neighborhood: MWCCPNeighborhoods, step_function: StepFunction,
-                     initial_obj: int = -1, max_iterations: int = -1, max_time_in_s: int = -1):
+                     initial_obj: int = -1, max_iterations: int = -1, max_time_in_s: float = -1):
         solution: [int] = initial_solution.copy()
+
+        if not self.is_valid_solution(initial_solution):
+            raise ValueError("Initial solution is not valid!")
         # Calculate the obj value of the initial solution
 
         obj: int
