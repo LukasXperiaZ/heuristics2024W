@@ -6,8 +6,8 @@ from enum import Enum
 import numpy as np
 from pymhlib.solution import VectorSolution
 
-from ex1.evaluation import ObjIter, Stats
-from ex1.local_search import StepFunction, LocalSearchSolution
+from src.evaluation import ObjIter, Stats
+from src.local_search import StepFunction, LocalSearchSolution
 
 obj_huge = 999999999999999999999999999999999999999
 
@@ -588,6 +588,196 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                       final_objective=best_obj, obj_over_time=obj_over_time)
 
         return best_sol, stats
+
+    def genetic_algorithm(self, population_size: int = 100, k: int = 10, crossover_range: int = 10,
+                          mutation_prob: float = 0.05,
+                          penalize_factor: float = 1.5,
+                          max_iterations: int = -1,
+                          max_time_in_s: int = 10):
+        """
+        Genetic algorithm for MWCCP.
+        Constraint handling: The algorithm assigns invalid solutions a higher fitness value.
+
+        :param mutation_prob: The probability of an allel to mutate
+        :param penalize_factor: A factor how much worse invalid solutions should be (e.g. 1.5 means 1.5 times the value of the solution this solution was created from).
+        :param crossover_range: The size of the crossover range of the partially matched crossover recombination
+        :param population_size: the size of the population
+        :param k: The number of individuals randomly chosen by the tournament selection.
+        :param max_iterations: Maximum number of iterations.
+        :param max_time_in_s: Maximum time the algorithm should run.
+        :return: best found solution.
+        """
+        # Checks
+        if population_size < k:
+            raise ValueError("Population size must be greater than or equal to k")
+
+        i = 0
+        start = time.time()
+
+        # initialize P(t)
+        # population is an array of solution-objective tuples, e.g. [([1,2,3], 9), ...]
+        population: [([], int)] = []
+        for i in range(population_size):
+            sol, obj, _ = self.randomized_construction_heuristic()
+            population.append((sol, obj))
+
+        # evaluate P(t)
+        # already done
+
+        while i <= max_iterations or time.time() - start < max_time_in_s:
+            i += 1
+
+            # Q_s(t) <- select(P(t-1))
+            q_s = self.tournament_selection(population, k)
+
+            # Q_r(t) <- recombine(Q_s(t))
+            q_r = self.partially_matched_crossover(q_s, crossover_range, penalize_factor)
+
+            # Q_m(t) <- mutate(Q_r(t))
+            q_m = self.insertion_mutation(q_r, mutation_prob, penalize_factor)
+
+            # P(t) <- replace(P(t-1), Q_m(t))
+            p = self.replacement_elite(population, q_m)
+
+            # set the new parents
+            population = p
+
+        return population[0]
+
+    def tournament_selection(self, population: [([], int)], k):
+        selected_individuals = []
+        for i in range(len(population)):
+            # choose k individuals uniformly at random
+            k_individuals = []
+            for r in range(k):
+                rand_individual = random.choice(population)
+                k_individuals.append(rand_individual)
+
+            # select the best individual
+            best = k_individuals[0]
+            for (sol, obj) in k_individuals:
+                if obj < best[1]:
+                    best = (sol, obj)
+            selected_individuals.append(best)
+        return selected_individuals
+
+    def partially_matched_crossover(self, population: [([], int)], crossover_range: int, penalize_factor: float):
+        children: [([], int)] = []
+        for i in range(int(len(population) / 2)):
+            # select 2 parents A and B
+            (parent_a, obj_parent_a) = random.choice(population)
+            (parent_b, obj_parent_b) = random.choice(population)
+            crossover_start = random.randint(0, len(parent_a) - 1 - crossover_range)
+
+            # create children
+            children_a = list.copy(parent_a)
+            children_b = list.copy(parent_b)
+
+            # For all genes in the crossover range:
+            a_map_to: dict = {}
+            b_map_to: dict = {}
+            for j in range(crossover_start, crossover_start + crossover_range):
+                # Swap the genes within the crossover range
+                a_map_to[parent_b[j]] = children_a[j]
+                children_a[j] = parent_b[j]
+
+                b_map_to[parent_a[j]] = children_b[j]
+                children_b[j] = parent_a[j]
+
+            # Swap variables outside the crossover range with the old variables inside the crossover range.
+            for j in range(0, crossover_start):
+                gene_a = children_a[j]
+                if gene_a in a_map_to:
+                    children_a[j] = a_map_to[gene_a]
+
+                gene_b = children_b[j]
+                if gene_b in b_map_to:
+                    children_b[j] = b_map_to[gene_b]
+
+            for j in range(crossover_start + crossover_range, len(parent_a)):
+                gene_a = children_a[j]
+                if gene_a in a_map_to:
+                    children_a[j] = a_map_to[gene_a]
+
+                gene_b = children_b[j]
+                if gene_b in b_map_to:
+                    children_b[j] = b_map_to[gene_b]
+
+            # Calculate fitness of children (i.e. obj function)
+            obj_a = obj_huge
+            obj_b = obj_huge
+            if self.is_valid_solution(children_a):
+                obj_a = self.calc_objective_par(children_a)
+            else:
+                obj_a = int(obj_parent_a * penalize_factor)
+
+            if self.is_valid_solution(children_b):
+                obj_b = self.calc_objective_par(children_b)
+            else:
+                obj_b = int(obj_parent_b * penalize_factor)
+
+            children.append((children_a, obj_a))
+            children.append((children_b, obj_b))
+        return children
+
+    def insertion_mutation(self, solutions: [([], int)], mutation_prob: float, penalize_factor: float):
+        mutated_solutions = list.copy(solutions)
+        for j in range(len(mutated_solutions)):
+            mut_solution, obj = mutated_solutions[j]
+            for i in range(len(mut_solution)):
+                if random.random() < mutation_prob:
+                    # Mutate
+                    new_loc = random.randint(0, len(mut_solution) - 1)
+                    curr = mut_solution.pop(i)
+                    mut_solution.insert(new_loc, curr)
+
+            if self.is_valid_solution(mut_solution):
+                obj_new = self.calc_objective_par(mut_solution)
+            else:
+                obj_new = int(obj * penalize_factor)
+            mutated_solutions[j] = (mutated_solutions[j][0], obj_new)
+
+        return mutated_solutions
+
+    def replacement_elite(self, parents: [([], int)], children: [([], int)]):
+        """
+        Replace 15% of the population by the best solutions over parents and children.
+        Append 65% of the best children.
+        Append 20% (i.e. the rest) random new solutions.
+
+        :param parents: parent solutions
+        :param children: children solutions
+        :return:
+        """
+        elite_perc = 0.15
+        children_perc = 0.65
+        new_population = []
+
+        elite_number = int(len(parents) * elite_perc)
+        children_number = int(len(parents) * children_perc)
+
+        parents.sort(key=lambda x: x[1])
+        children.sort(key=lambda x: x[1])
+
+        candidates = parents[:elite_number] + children[:elite_number]
+        candidates.sort(key=lambda x: x[1])
+
+        elite = candidates[:elite_number]
+        new_population = new_population + elite
+
+        # Append children
+        new_population = new_population + children[:children_number]
+
+        # Append random solutions
+        while len(new_population) < len(parents):
+            rand_individual, obj, _ = self.randomized_construction_heuristic()
+            new_population.append((rand_individual, obj))
+
+        return new_population
+
+    # =================================================================================
+    #           Construction Heuristics
+    # =================================================================================
 
     def deterministic_construction_heuristic(self):
         self.initialize(-1)

@@ -1,12 +1,13 @@
+import random
 import time
 import unittest
 
 import numpy as np
 
-from ex1.MWCCP import MWCCPSolution, MWCCPInstance, MWCCPNeighborhoods
-from ex1.evaluation import MultiStats
-from ex1.local_search import StepFunction
-from ex1.read_instance import read_instance
+from src.MWCCP import MWCCPSolution, MWCCPInstance, MWCCPNeighborhoods
+from src.evaluation import MultiStats
+from src.local_search import StepFunction
+from src.read_instance import read_instance
 
 
 class Basics(unittest.TestCase):
@@ -164,6 +165,25 @@ class RCH(unittest.TestCase):
         sol, obj_value, stats = mwccp_solution.randomized_construction_heuristic()
         print("Solution: " + str(sol))
         print("Obj value: " + str(obj_value))
+
+    def test_rand_const_heu_variance(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00001")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        obj_values = []
+        for i in range(0, 100):
+            sol, obj_value, stats = mwccp_solution.randomized_construction_heuristic()
+            obj_values.append(obj_value)
+
+        obj_avg = np.average(obj_values)
+        obj_std = np.std(obj_values)
+        print("Average objective value: " + f"{obj_avg:.1f}, with std: " + f"{obj_std:.4f}")
+
+    def test_rand_const_heu_diff_structures(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00001")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+        for i in range(0, 20):
+            sol, obj_value, stats = mwccp_solution.randomized_construction_heuristic()
+            print(sol)
 
 
 class Neighborhoods(unittest.TestCase):
@@ -527,3 +547,82 @@ class GRASP(unittest.TestCase):
         solution_best, stats_best = mwccp_solution.grasp(MWCCPNeighborhoods.flip_two_adjacent_vertices,
                                                          StepFunction.best_improvement, max_time_in_s=max_time)
         stats_best.show_plot("inst_200_20_00002")
+
+
+class GeneticAlgorithm(unittest.TestCase):
+    def test_tournament_selection(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        test_population = []
+        for i in range(100):
+            test_population.append(([], random.randint(1, 100)))
+
+        selected_individuals = mwccp_solution.tournament_selection(test_population, 10)
+        print(selected_individuals)
+        integers = [value for _, value in selected_individuals]
+        average = sum(integers) / len(integers) if integers else 0
+        print(average)
+        # Average is lower if k is closer to the number of individuals. Thus, works as intended
+
+    def test_partially_matched_crossover(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        test_population = [([9, 8, 4, 5, 6, 7, 1, 3, 2, 0], 10), ([8, 7, 1, 2, 3, 0, 9, 5, 4, 6], 9)]
+        children = mwccp_solution.partially_matched_crossover(test_population, 3, 1.5)
+        print(children)
+
+    def test_partially_matched_crossover_small(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        sol_1, obj_1, _ = mwccp_solution.randomized_construction_heuristic()
+        sol_2, obj_2, _ = mwccp_solution.randomized_construction_heuristic()
+
+        test_population = [(sol_1, obj_1), (sol_2, obj_2)]
+        children = mwccp_solution.partially_matched_crossover(test_population, 3, 1.5)
+
+        print("Valid solution: " + str(mwccp_solution.is_valid_solution(children[0][0])))
+        print("Valid solution: " + str(mwccp_solution.is_valid_solution(children[1][0])))
+        print(children)
+
+    def test_insertion_mutation(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        test_population = [([9, 8, 4, 5, 6, 7, 1, 3, 2, 0], 10), ([8, 7, 1, 2, 3, 0, 9, 5, 4, 6], 9)]
+        mutated_population = mwccp_solution.insertion_mutation(test_population, 0.1, 1.5)
+        print(mutated_population)
+
+    def test_insertion_mutation_small(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        sol_1, obj_1, _ = mwccp_solution.randomized_construction_heuristic()
+        sol_2, obj_2, _ = mwccp_solution.randomized_construction_heuristic()
+
+        test_population = [(sol_1, obj_1), (sol_2, obj_2)]
+        mutated_population = mwccp_solution.insertion_mutation(test_population, 0.05, 1.2)
+
+        print("Valid solution: " + str(mwccp_solution.is_valid_solution(mutated_population[0][0])))
+        print("Valid solution: " + str(mwccp_solution.is_valid_solution(mutated_population[1][0])))
+        print(mutated_population)
+
+    def test_replacement_elite(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        parents = [([1], 3), ([2], 4), ([3], 8), ([4], 7), ([], 20), ([], 20), ([], 20), ([], 20), ([], 20), ([], 20)]
+        children = [([11], 6), ([12], 11), ([13], 5), ([14], 9), ([], 20), ([], 20), ([], 20), ([], 20), ([], 20), ([], 20)]
+
+        replaced_population = mwccp_solution.replacement_elite(parents, children)
+        print(replaced_population)
+
+    def test_genetic_algorithm(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        best_sol, best_obj = mwccp_solution.genetic_algorithm()
+        print(best_sol)
+        print(best_obj)

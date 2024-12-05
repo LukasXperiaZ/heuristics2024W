@@ -2,7 +2,7 @@ from pathlib import Path
 
 from networkx.classes import edges
 
-from ex1.MWCCP import MWCCPInstance
+from src.MWCCP import MWCCPInstance
 
 
 def read_instance(path: str) -> MWCCPInstance:

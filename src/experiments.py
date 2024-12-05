@@ -3,10 +3,10 @@ import unittest
 
 import numpy as np
 
-from ex1.MWCCP import MWCCPSolution, MWCCPNeighborhoods
-from ex1.evaluation import MultiStats
-from ex1.local_search import StepFunction
-from ex1.read_instance import read_instance
+from src.MWCCP import MWCCPSolution, MWCCPNeighborhoods
+from src.evaluation import MultiStats
+from src.local_search import StepFunction
+from src.read_instance import read_instance
 
 
 class DCH_RCH_GRASP(unittest.TestCase):
