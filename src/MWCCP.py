@@ -611,18 +611,21 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         if population_size < k:
             raise ValueError("Population size must be greater than or equal to k")
 
+        obj_over_time: [ObjIter] = []
+
         i = 0
         start = time.time()
 
-        # initialize P(t)
+        # initialize and evaluate P(t)
         # population is an array of solution-objective tuples, e.g. [([1,2,3], 9), ...]
         population: [([], int)] = []
-        for i in range(population_size):
+        for j in range(population_size):
             sol, obj, _ = self.randomized_construction_heuristic()
             population.append((sol, obj))
 
-        # evaluate P(t)
-        # already done
+        population.sort(key=lambda x: x[1])
+
+        obj_over_time.append(ObjIter(population[0][1], i))
 
         while i <= max_iterations or time.time() - start < max_time_in_s:
             i += 1
@@ -642,7 +645,14 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             # set the new parents
             population = p
 
-        return population[0]
+            obj_over_time.append(ObjIter(population[0][1], i))
+        end = time.time()
+
+        stats = Stats(title="Genetic Algorithm", start_time=start, end_time=end,
+                      iterations=i,
+                      final_objective=population[0][1], obj_over_time=obj_over_time)
+
+        return population[0][0], stats
 
     def tournament_selection(self, population: [([], int)], k):
         selected_individuals = []

@@ -623,6 +623,7 @@ class GeneticAlgorithm(unittest.TestCase):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
-        best_sol, best_obj = mwccp_solution.genetic_algorithm()
+        best_sol, stats = mwccp_solution.genetic_algorithm()
         print(best_sol)
-        print(best_obj)
+
+        stats.show_plot("Test")
