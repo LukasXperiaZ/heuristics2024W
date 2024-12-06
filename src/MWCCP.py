@@ -617,7 +617,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                           max_time_in_s: int = 10):
         """
         Genetic algorithm for MWCCP.
-        Constraint handling: The algorithm assigns invalid solutions a higher fitness value.
+        Constraint handling: The algorithm assigns invalid solutions a worse fitness value.
         Inspiration: The algorithm behaves very similarly to the BRKGA. However, since not every permutation is a
                         valid solution, we use partially_matched_crossover to get a reasonable number of valid solutions.
                         Thus, we also do not use a bias. Instead, we use tournament selection to select the REST
@@ -628,7 +628,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         :param bot_population: Percentage of the bot population that is randomly generated in every iteration
         :param elitist_population: The percentage of the population that is considered to be the elite.
         :param mutation_prob: The probability of an allel to mutate
-        :param penalize_factor: A factor how much worse invalid solutions should be (e.g. 1.5 means 1.5 times the value of the solution this solution was created from).
+        :param penalize_factor: A factor how much worse invalid solutions should be (e.g. 1.5 means 1.5 times the value of the parent/original solution).
         :param crossover_range: The size of the crossover range of the partially matched crossover recombination
         :param population_size: the size of the population
         :param k: The number of individuals randomly chosen by the tournament selection.
