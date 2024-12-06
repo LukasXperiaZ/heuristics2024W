@@ -605,6 +605,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         return best_sol, stats
 
     def genetic_algorithm(self, population_size: int = 100,
+                          randomized_const_heuristic_initialization: str = "random_and_repair",
                           elitist_population: float = 0.2,
                           bot_population: float = 0.2,
                           k: int = 10,
@@ -652,7 +653,10 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         # population is an array of solution-objective tuples, e.g. [([1,2,3], 9), ...]
         population: [([], int)] = []
         for j in range(population_size):
-            sol, obj, _ = self.randomized_construction_heuristic()
+            if randomized_const_heuristic_initialization == "standard":
+                sol, obj, _ = self.randomized_construction_heuristic()
+            else:
+                sol, obj = self.randomized_construction_heuristic_random_and_repair()
             population.append((sol, obj))
 
         population.sort(key=lambda x: x[1])
@@ -694,6 +698,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         return population[0][0], stats
 
     def genetic_algorithm_with_vnd(self, population_size: int = 100,
+                                   randomized_const_heuristic_initialization: str = "random_and_repair",
                                    elitist_population: float = 0.2,
                                    bot_population: float = 0.2,
                                    k: int = 10,
@@ -705,12 +710,15 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                                    vnd_max_runtime_in_s: int = 0.01,
                                    vnd_neighborhoods: [MWCCPNeighborhoods] = None,
                                    step_function: StepFunction = StepFunction.first_improvement,
+                                   vnd_randomized_const_heuristic: str = "standard",
                                    max_iterations: int = -1,
                                    max_time_in_s: int = 10):
         """
         Hybrid approach that combines the genetic algorithm with VND.
         VND is used at the end of an iteration of the genetic algorithm on a random portion (on a part) of the population.
 
+        :param randomized_const_heuristic_initialization: The randomized CH for the initialization phase
+        :param vnd_randomized_const_heuristic: randomized construction heuristic that should be used for the BOT individuals.
         :param step_function: Stepfunction of VND
         :param vnd_neighborhoods: The neighborhoods that VND will use
         :param vnd_max_runtime_in_s: Maximal runtime of VND on one instance
@@ -751,7 +759,10 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         # population is an array of solution-objective tuples, e.g. [([1,2,3], 9), ...]
         population: [([], int)] = []
         for j in range(population_size):
-            sol, obj, _ = self.randomized_construction_heuristic()
+            if randomized_const_heuristic_initialization == "standard":
+                sol, obj, _ = self.randomized_construction_heuristic()
+            else:
+                sol, obj = self.randomized_construction_heuristic_random_and_repair()
             population.append((sol, obj))
 
         population.sort(key=lambda x: x[1])
@@ -780,7 +791,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             # Replace the population with top, mid and random solutions.
             # NEW: The random solutions are enhanced with VND.
             p = self.replacement_brkga_with_VND(top, mid, population_size, vnd_percentage, vnd_neighborhoods,
-                                                step_function, vnd_max_runtime_in_s)
+                                                step_function, vnd_randomized_const_heuristic, vnd_max_runtime_in_s)
 
             # set the new parents
             population = p
@@ -801,19 +812,23 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             sol, _ = population[i]
 
             # repair the solution
-            violated_constraints = self.get_violated_constraints(sol)  # O(|C|)
-            while violated_constraints:
-                v_k, v_j = violated_constraints[0]
-                # Move v_k at the position of v_j and push v_j and its successors to the right
-                self.resolve_constraint(sol, v_k, v_j)
-
-                violated_constraints = self.get_violated_constraints(sol)
+            sol = self.repair_solution(sol)
 
             if not self.is_valid_solution(sol):
                 raise ValueError("Solution is not valid after repair!")
 
             population[i] = (sol, self.calc_objective_par(sol))
         return population
+
+    def repair_solution(self, sol: []):
+        violated_constraints = self.get_violated_constraints(sol)  # O(|C|)
+        while violated_constraints:
+            v_k, v_j = violated_constraints[0]
+            # Move v_k at the position of v_j and push v_j and its successors to the right
+            self.resolve_constraint(sol, v_k, v_j)
+
+            violated_constraints = self.get_violated_constraints(sol)
+        return sol
 
     def tournament_selection(self, population: [([], int)], k):
         selected_individuals = []
@@ -938,8 +953,10 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         return new_population
 
-    def replacement_brkga_with_VND(self, top: [([], int)], mid: [([], int)], population_size: int, vnd_percentage: float,
-                                   vnd_neighborhoods, step_function, vnd_max_runtime_in_s):
+    def replacement_brkga_with_VND(self, top: [([], int)], mid: [([], int)], population_size: int,
+                                   vnd_percentage: float,
+                                   vnd_neighborhoods, step_function, vnd_randomized_const_heuristic,
+                                   vnd_max_runtime_in_s):
         new_population = []
 
         # Append top and mid-solutions
@@ -948,7 +965,10 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         # Get random solutions
         rand_sol = []
         while len(new_population) + len(rand_sol) < population_size:
-            rand_individual, obj, _ = self.randomized_construction_heuristic()
+            if vnd_randomized_const_heuristic == "standard":
+                rand_individual, obj, _ = self.randomized_construction_heuristic()
+            else:
+                rand_individual, obj = self.randomized_construction_heuristic_random_and_repair()
             rand_sol.append((rand_individual, obj))
 
         # Improve (some) random solutions with vnd
@@ -1061,6 +1081,21 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         return x_temp, obj, Stats(title="Randomized CH", start_time=start, end_time=end,
                                   iterations=-1,
                                   final_objective=obj, obj_over_time=[obj, 0])
+
+    def randomized_construction_heuristic_random_and_repair(self):
+        v: [] = self.x.tolist()
+        # do a random permutation
+        random.shuffle(v)
+
+        # repair the solution
+        repaired = self.repair_solution(v)
+
+        if not self.is_valid_solution(repaired):
+            raise ValueError("Repaired solution is not valid!")
+
+        obj = self.calc_objective_par(repaired)
+
+        return repaired, obj
 
     def get_max_weight_vertex(self, V_rem, u_i):
         best_v = None

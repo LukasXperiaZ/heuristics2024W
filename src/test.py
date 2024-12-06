@@ -668,22 +668,26 @@ class GeneticAlgorithm(unittest.TestCase):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
-        best_sol, stats = mwccp_solution.genetic_algorithm()
+        best_sol, stats = mwccp_solution.genetic_algorithm(population_size=1000)
+        stats.show_plot("Default")
 
-        stats.show_plot("Test")
+        best_sol, stats = mwccp_solution.genetic_algorithm(population_size=1000, randomized_const_heuristic_initialization="standard")
+        stats.show_plot("Standard RCH")
 
     def test_genetic_algorithm_medium(self):
         mwccp_instance = read_instance("../data/test_instances/medium/inst_200_20_00004")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
-        best_sol, stats = mwccp_solution.genetic_algorithm(k=50)
+        best_sol, stats = mwccp_solution.genetic_algorithm(population_size=200, k=50, max_time_in_s=20)
+        stats.show_plot("Default")
 
-        stats.show_plot("Test")
+        best_sol, stats = mwccp_solution.genetic_algorithm(population_size=200, k=50, max_time_in_s=20, randomized_const_heuristic_initialization="standard")
+        stats.show_plot("Standard RCH")
 
 class GeneticAlgorithmWithVND(unittest.TestCase):
     def test_genetic_algorithm_with_VND(self):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
-        best_sol, stats = mwccp_solution.genetic_algorithm_with_vnd()
+        best_sol, stats = mwccp_solution.genetic_algorithm_with_vnd(population_size=1000)
         stats.show_plot("+VND")
