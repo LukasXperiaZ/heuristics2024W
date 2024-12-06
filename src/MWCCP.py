@@ -729,14 +729,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             # select 2 parents A and B
             (parent_a, obj_parent_a) = random.choice(top)
             (parent_b, obj_parent_b) = random.choice(rest)
-            crossover_start = 6#random.randint(0, len(parent_a) - 1 - crossover_range)
-
-            # TODO delete
-            if self.has_duplicates(parent_a):
-                print("Duplicates found!")
-            if self.has_duplicates(parent_b):
-                print("Duplicates found!")
-            # TODO end
+            crossover_start = random.randint(0, len(parent_a) - 1 - crossover_range)
 
             # create children
             children_a = list.copy(parent_a)
@@ -779,11 +772,6 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                         repl_gene_b = b_map_to[repl_gene_b]
 
                     children_b[j] = repl_gene_b
-
-            if self.has_duplicates(children_a):
-                print("Duplicates found!")
-            if self.has_duplicates(children_b):
-                print("Duplicates found!")
 
             # Calculate fitness of children (i.e. obj function)
             obj_a = obj_huge

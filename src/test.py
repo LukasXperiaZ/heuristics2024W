@@ -595,18 +595,16 @@ class GeneticAlgorithm(unittest.TestCase):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
-        sol_1, obj_1, _ = ([42, 37, 28, 49, 36, 27, 44, 30, 39, 47, 40, 35, 43, 41, 26, 46, 48, 50, 31, 29, 45, 34, 32, 33, 38], 1, None)
-        sol_2, obj_2, _ = ([42, 28, 40, 32, 36, 27, 30, 39, 31, 48, 33, 35, 43, 47, 26, 46, 37, 45, 41, 34, 29, 38, 44, 49, 50], 2, None)
+        for i in range(10000):
+            sol_1, obj_1, _ = mwccp_solution.randomized_construction_heuristic()
+            sol_2, obj_2, _ = mwccp_solution.randomized_construction_heuristic()
 
-        top = [(sol_1, obj_1)]
-        rest = [(sol_2, obj_2)]
-        children = mwccp_solution.partially_matched_crossover(top, rest, 2, 3, 1.5)
+            top = [(sol_1, obj_1)]
+            rest = [(sol_2, obj_2)]
+            children = mwccp_solution.partially_matched_crossover(top, rest, 2, 3, 1.5)
 
-        print("Valid solution: " + str(mwccp_solution.is_valid_solution(children[0][0])))
-        print("Valid solution: " + str(mwccp_solution.is_valid_solution(children[1][0])))
-        assert not mwccp_solution.has_duplicates(children[0][0])
-        assert not mwccp_solution.has_duplicates(children[1][0])
-        print(children)
+            assert not mwccp_solution.has_duplicates(children[0][0])
+            assert not mwccp_solution.has_duplicates(children[1][0])
 
     def test_insertion_mutation(self):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
