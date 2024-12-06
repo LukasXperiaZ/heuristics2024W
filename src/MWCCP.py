@@ -505,9 +505,13 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         return solution, obj, stats
 
     def vnd(self, neighborhoods: [MWCCPNeighborhoods], step_function: StepFunction, max_iterations: int = -1,
-            max_time_in_s: int = -1):
-        # Get the initial solution from the DCH
-        sol, obj, _ = self.deterministic_construction_heuristic()
+            max_time_in_s: int = -1, initial_sol: ([], int) = None):
+        if initial_sol is None:
+            # Get the initial solution from the DCH
+            sol, obj, _ = self.deterministic_construction_heuristic()
+        else:
+            sol, obj = initial_sol
+
         curr_solution: [int] = sol
         # The obj value of the initial solution
         curr_obj: int = obj
@@ -604,7 +608,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                           elitist_population: float = 0.2,
                           bot_population: float = 0.2,
                           k: int = 10,
-                          crossover_range: int = 10,
+                          crossover_range: int = 5,
                           mutation_prob: float = 0.05,
                           repair_percentage: float = 0.5,
                           penalize_factor: float = 1.5,
@@ -689,6 +693,107 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         return population[0][0], stats
 
+    def genetic_algorithm_with_vnd(self, population_size: int = 100,
+                                   elitist_population: float = 0.2,
+                                   bot_population: float = 0.2,
+                                   k: int = 10,
+                                   crossover_range: int = 5,
+                                   mutation_prob: float = 0.05,
+                                   repair_percentage: float = 0.5,
+                                   penalize_factor: float = 1.5,
+                                   vnd_percentage: float = 0.5,
+                                   vnd_max_runtime_in_s: int = 0.01,
+                                   vnd_neighborhoods: [MWCCPNeighborhoods] = None,
+                                   step_function: StepFunction = StepFunction.first_improvement,
+                                   max_iterations: int = -1,
+                                   max_time_in_s: int = 10):
+        """
+        Hybrid approach that combines the genetic algorithm with VND.
+        VND is used at the end of an iteration of the genetic algorithm on a random portion (on a part) of the population.
+
+        :param step_function: Stepfunction of VND
+        :param vnd_neighborhoods: The neighborhoods that VND will use
+        :param vnd_max_runtime_in_s: Maximal runtime of VND on one instance
+        :param vnd_percentage: The percentage of the population to which vnd should be applied.
+
+        :param repair_percentage: The percentage of mid-solutions (from the crossover) that will be repaired.
+        :param bot_population: Percentage of the bot population that is randomly generated in every iteration
+        :param elitist_population: The percentage of the population that is considered to be the elite.
+        :param mutation_prob: The probability of an allel to mutate
+        :param penalize_factor: A factor how much worse invalid solutions should be (e.g. 1.5 means 1.5 times the value of the solution this solution was created from).
+        :param crossover_range: The size of the crossover range of the partially matched crossover recombination
+        :param population_size: the size of the population
+        :param k: The number of individuals randomly chosen by the tournament selection.
+        :param max_iterations: Maximum number of iterations.
+        :param max_time_in_s: Maximum time the algorithm should run.
+        :return: best found solution.
+        """
+        # Checks
+        if population_size < k:
+            raise ValueError("Population size must be greater than or equal to k")
+
+        if vnd_neighborhoods is None:
+            vnd_neighborhoods = [
+                MWCCPNeighborhoods.flip_two_adjacent_vertices,
+                MWCCPNeighborhoods.flip_three_adjacent_vertices,
+                MWCCPNeighborhoods.flip_four_adjacent_vertices]
+
+        elitist_n = int(elitist_population * population_size)
+        bot_n = int(bot_population * population_size)
+        crossover_n = population_size - elitist_n - bot_n
+
+        obj_over_time: [ObjIter] = []
+
+        i = 0
+        start = time.time()
+
+        # initialize and evaluate P(t)
+        # population is an array of solution-objective tuples, e.g. [([1,2,3], 9), ...]
+        population: [([], int)] = []
+        for j in range(population_size):
+            sol, obj, _ = self.randomized_construction_heuristic()
+            population.append((sol, obj))
+
+        population.sort(key=lambda x: x[1])
+
+        obj_over_time.append(ObjIter(population[0][1], i))
+
+        while i <= max_iterations or time.time() - start < max_time_in_s:
+            i += 1
+
+            # Select the top population
+            top = population[:elitist_n]
+            # Repair the top solutions if necessary
+            top = self.repair(top, 1)
+
+            # Do a tournament selection on the population to get the rest population
+            rest = self.tournament_selection(population, k)
+
+            # Do a partially matched crossover by choosing one parent of the top and one of the rest population
+            mid = self.partially_matched_crossover(top, rest, crossover_n, crossover_range, penalize_factor)
+
+            # Do insertion mutation
+            mid = self.insertion_mutation(mid, mutation_prob, penalize_factor)
+
+            mid = self.repair(mid, repair_percentage)
+
+            # Replace the population with top, mid and random solutions.
+            # NEW: The random solutions are enhanced with VND.
+            p = self.replacement_brkga_with_VND(top, mid, population_size, vnd_percentage, vnd_neighborhoods,
+                                                step_function, vnd_max_runtime_in_s)
+
+            # set the new parents
+            population = p
+
+            obj_over_time.append(ObjIter(population[0][1], i))
+        end = time.time()
+
+        stats = Stats(title="Genetic Algorithm", start_time=start, end_time=end,
+                      iterations=i,
+                      final_objective=population[0][1], obj_over_time=obj_over_time)
+
+        return population[0][0], stats
+
     def repair(self, population: [([], int)], repair_percentage: float):
         population.sort(key=lambda x: x[1])
         repair_n = int(repair_percentage * len(population))
@@ -703,6 +808,11 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                 self.resolve_constraint(sol, v_k, v_j)
 
                 violated_constraints = self.get_violated_constraints(sol)
+
+            if not self.is_valid_solution(sol):
+                raise ValueError("Solution is not valid after repair!")
+
+            population[i] = (sol, self.calc_objective_par(sol))
         return population
 
     def tournament_selection(self, population: [([], int)], k):
@@ -823,6 +933,35 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         while len(new_population) < population_size:
             rand_individual, obj, _ = self.randomized_construction_heuristic()
             new_population.append((rand_individual, obj))
+
+        new_population.sort(key=lambda x: x[1])
+
+        return new_population
+
+    def replacement_brkga_with_VND(self, top: [([], int)], mid: [([], int)], population_size: int, vnd_percentage: float,
+                                   vnd_neighborhoods, step_function, vnd_max_runtime_in_s):
+        new_population = []
+
+        # Append top and mid-solutions
+        new_population = new_population + top + mid
+
+        # Get random solutions
+        rand_sol = []
+        while len(new_population) + len(rand_sol) < population_size:
+            rand_individual, obj, _ = self.randomized_construction_heuristic()
+            rand_sol.append((rand_individual, obj))
+
+        # Improve (some) random solutions with vnd
+        vnd_n = int(vnd_percentage * len(rand_sol))
+        subset_indexes = random.sample(range(len(rand_sol)), vnd_n)
+        for i in subset_indexes:
+            rand_individual = rand_sol[i]
+            sol, stats = self.vnd(vnd_neighborhoods, step_function, initial_sol=rand_individual,
+                                  max_time_in_s=vnd_max_runtime_in_s)
+            rand_sol[i] = (sol, stats.get_final_objective())
+
+        # Append the improved random solutions
+        new_population = new_population + rand_sol
 
         new_population.sort(key=lambda x: x[1])
 
