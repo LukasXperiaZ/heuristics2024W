@@ -589,7 +589,11 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         return best_sol, stats
 
-    def genetic_algorithm(self, population_size: int = 100, k: int = 10, crossover_range: int = 10,
+    def genetic_algorithm(self, population_size: int = 100,
+                          elitist_population: float = 0.2,
+                          bot_population: float = 0.2,
+                          k: int = 10,
+                          crossover_range: int = 10,
                           mutation_prob: float = 0.05,
                           penalize_factor: float = 1.5,
                           max_iterations: int = -1,
@@ -597,7 +601,14 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         """
         Genetic algorithm for MWCCP.
         Constraint handling: The algorithm assigns invalid solutions a higher fitness value.
+        Inspiration: The algorithm behaves very similarly to the BRKGA. However, since not every permutation is a
+                        valid solution, we use partially_matched_crossover to get a reasonable number of valid solutions.
+                        Thus, we also do not use a bias. Instead, we use tournament selection to select the REST
+                        candidates to be paired with the TOP candidates. This way, it is also possible that two parents
+                        are from the TOP group.
 
+        :param bot_population: Percentage of the bot population that is randomly generated in every iteration
+        :param elitist_population: The percentage of the population that is considered to be the elite.
         :param mutation_prob: The probability of an allel to mutate
         :param penalize_factor: A factor how much worse invalid solutions should be (e.g. 1.5 means 1.5 times the value of the solution this solution was created from).
         :param crossover_range: The size of the crossover range of the partially matched crossover recombination
@@ -610,6 +621,10 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         # Checks
         if population_size < k:
             raise ValueError("Population size must be greater than or equal to k")
+
+        elitist_n = int(elitist_population * population_size)
+        bot_n = int(bot_population * population_size)
+        crossover_n = population_size - elitist_n - bot_n
 
         obj_over_time: [ObjIter] = []
 
@@ -630,17 +645,20 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         while i <= max_iterations or time.time() - start < max_time_in_s:
             i += 1
 
-            # Q_s(t) <- select(P(t-1))
-            q_s = self.tournament_selection(population, k)
+            # Select the top population
+            top = population[:elitist_n]
 
-            # Q_r(t) <- recombine(Q_s(t))
-            q_r = self.partially_matched_crossover(q_s, crossover_range, penalize_factor)
+            # Do a tournament selection on the population to get the rest population
+            rest = self.tournament_selection(population, k)
 
-            # Q_m(t) <- mutate(Q_r(t))
-            q_m = self.insertion_mutation(q_r, mutation_prob, penalize_factor)
+            # Do a partially matched crossover by choosing one parent of the top and one of the rest population
+            mid = self.partially_matched_crossover(top, rest, crossover_n, crossover_range, penalize_factor)
 
-            # P(t) <- replace(P(t-1), Q_m(t))
-            p = self.replacement_elite(population, q_m)
+            # Do insertion mutation
+            mid = self.insertion_mutation(mid, mutation_prob, penalize_factor)
+
+            # Replace the population with top, mid and random solutions
+            p = self.replacement_brkga(top, mid, population_size)
 
             # set the new parents
             population = p
@@ -671,12 +689,13 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             selected_individuals.append(best)
         return selected_individuals
 
-    def partially_matched_crossover(self, population: [([], int)], crossover_range: int, penalize_factor: float):
+    def partially_matched_crossover(self, top: [([], int)], rest: [([], int)], size: int, crossover_range: int,
+                                    penalize_factor: float):
         children: [([], int)] = []
-        for i in range(int(len(population) / 2)):
+        for i in range(int(size/2)):
             # select 2 parents A and B
-            (parent_a, obj_parent_a) = random.choice(population)
-            (parent_b, obj_parent_b) = random.choice(population)
+            (parent_a, obj_parent_a) = random.choice(top)
+            (parent_b, obj_parent_b) = random.choice(rest)
             crossover_start = random.randint(0, len(parent_a) - 1 - crossover_range)
 
             # create children
@@ -749,39 +768,22 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         return mutated_solutions
 
-    def replacement_elite(self, parents: [([], int)], children: [([], int)]):
+    def replacement_brkga(self, top: [([], int)], mid: [([], int)], population_size: int):
         """
-        Replace 15% of the population by the best solutions over parents and children.
-        Append 65% of the best children.
-        Append 20% (i.e. the rest) random new solutions.
-
-        :param parents: parent solutions
-        :param children: children solutions
-        :return:
+        Do the replacement according to the Biased Random Key Genetic Algorithm.
+        I.e., we copy the top solutions, append the mid-solutions and append randomly generated solutions.
         """
-        elite_perc = 0.15
-        children_perc = 0.65
         new_population = []
 
-        elite_number = int(len(parents) * elite_perc)
-        children_number = int(len(parents) * children_perc)
-
-        parents.sort(key=lambda x: x[1])
-        children.sort(key=lambda x: x[1])
-
-        candidates = parents[:elite_number] + children[:elite_number]
-        candidates.sort(key=lambda x: x[1])
-
-        elite = candidates[:elite_number]
-        new_population = new_population + elite
-
-        # Append children
-        new_population = new_population + children[:children_number]
+        # Append top and mid-solutions
+        new_population = new_population + top + mid
 
         # Append random solutions
-        while len(new_population) < len(parents):
+        while len(new_population) < population_size:
             rand_individual, obj, _ = self.randomized_construction_heuristic()
             new_population.append((rand_individual, obj))
+
+        new_population.sort(key=lambda x: x[1])
 
         return new_population
 

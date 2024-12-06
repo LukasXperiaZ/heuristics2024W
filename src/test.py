@@ -569,9 +569,10 @@ class GeneticAlgorithm(unittest.TestCase):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
-        test_population = [([9, 8, 4, 5, 6, 7, 1, 3, 2, 0], 10), ([8, 7, 1, 2, 3, 0, 9, 5, 4, 6], 9)]
-        children = mwccp_solution.partially_matched_crossover(test_population, 3, 1.5)
-        print(children)
+        top = [([9, 8, 4, 5, 6, 7, 1, 3, 2, 0], 10)]
+        rest = [([8, 7, 1, 2, 3, 0, 9, 5, 4, 6], 9)]
+        mid = mwccp_solution.partially_matched_crossover(top, rest, 2, 3, 1.5)
+        print(mid)
 
     def test_partially_matched_crossover_small(self):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
@@ -580,8 +581,9 @@ class GeneticAlgorithm(unittest.TestCase):
         sol_1, obj_1, _ = mwccp_solution.randomized_construction_heuristic()
         sol_2, obj_2, _ = mwccp_solution.randomized_construction_heuristic()
 
-        test_population = [(sol_1, obj_1), (sol_2, obj_2)]
-        children = mwccp_solution.partially_matched_crossover(test_population, 3, 1.5)
+        top = [(sol_1, obj_1)]
+        rest = [(sol_2, obj_2)]
+        children = mwccp_solution.partially_matched_crossover(top, rest, 2, 3, 1.5)
 
         print("Valid solution: " + str(mwccp_solution.is_valid_solution(children[0][0])))
         print("Valid solution: " + str(mwccp_solution.is_valid_solution(children[1][0])))
@@ -609,14 +611,14 @@ class GeneticAlgorithm(unittest.TestCase):
         print("Valid solution: " + str(mwccp_solution.is_valid_solution(mutated_population[1][0])))
         print(mutated_population)
 
-    def test_replacement_elite(self):
+    def test_replacement_brkga(self):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
         mwccp_solution = MWCCPSolution(mwccp_instance)
 
-        parents = [([1], 3), ([2], 4), ([3], 8), ([4], 7), ([], 20), ([], 20), ([], 20), ([], 20), ([], 20), ([], 20)]
-        children = [([11], 6), ([12], 11), ([13], 5), ([14], 9), ([], 20), ([], 20), ([], 20), ([], 20), ([], 20), ([], 20)]
+        top = [([1], 3), ([2], 4), ([3], 8), ([4], 7), ([], 20), ([], 20), ([], 20), ([], 20), ([], 20), ([], 20)]
+        mid = [([11], 6), ([12], 11), ([13], 5), ([14], 9), ([], 20), ([], 20), ([], 20), ([], 20), ([], 20), ([], 20)]
 
-        replaced_population = mwccp_solution.replacement_elite(parents, children)
+        replaced_population = mwccp_solution.replacement_brkga(top, mid, 25)
         print(replaced_population)
 
     def test_genetic_algorithm(self):
