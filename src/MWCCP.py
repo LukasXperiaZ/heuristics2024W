@@ -2,6 +2,7 @@ import pickle
 import random
 import time
 from enum import Enum
+from itertools import chain
 
 import numpy as np
 from pymhlib.solution import VectorSolution
@@ -312,6 +313,16 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         return True
 
+    def has_duplicates(self, solution: [int]):
+        # ONLY for testing !!
+        seen = set()
+        for s in solution:
+            if s in seen:
+                print("Duplicate found: " + str(s))
+                return True
+            seen.add(s)
+        return False
+
     def get_neighbor(self, current_solution: [int], current_obj: int, neighborhood: MWCCPNeighborhoods,
                      step_function: StepFunction) -> ([int], int):
 
@@ -595,6 +606,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                           k: int = 10,
                           crossover_range: int = 10,
                           mutation_prob: float = 0.05,
+                          repair_percentage: float = 0.5,
                           penalize_factor: float = 1.5,
                           max_iterations: int = -1,
                           max_time_in_s: int = 10):
@@ -607,6 +619,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                         candidates to be paired with the TOP candidates. This way, it is also possible that two parents
                         are from the TOP group.
 
+        :param repair_percentage: The percentage of mid-solutions (from the crossover) that will be repaired.
         :param bot_population: Percentage of the bot population that is randomly generated in every iteration
         :param elitist_population: The percentage of the population that is considered to be the elite.
         :param mutation_prob: The probability of an allel to mutate
@@ -647,6 +660,8 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
             # Select the top population
             top = population[:elitist_n]
+            # Repair the top solutions if necessary
+            top = self.repair(top, 1)
 
             # Do a tournament selection on the population to get the rest population
             rest = self.tournament_selection(population, k)
@@ -656,6 +671,8 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
             # Do insertion mutation
             mid = self.insertion_mutation(mid, mutation_prob, penalize_factor)
+
+            mid = self.repair(mid, repair_percentage)
 
             # Replace the population with top, mid and random solutions
             p = self.replacement_brkga(top, mid, population_size)
@@ -671,6 +688,22 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                       final_objective=population[0][1], obj_over_time=obj_over_time)
 
         return population[0][0], stats
+
+    def repair(self, population: [([], int)], repair_percentage: float):
+        population.sort(key=lambda x: x[1])
+        repair_n = int(repair_percentage * len(population))
+        for i in range(repair_n):
+            sol, _ = population[i]
+
+            # repair the solution
+            violated_constraints = self.get_violated_constraints(sol)  # O(|C|)
+            while violated_constraints:
+                v_k, v_j = violated_constraints[0]
+                # Move v_k at the position of v_j and push v_j and its successors to the right
+                self.resolve_constraint(sol, v_k, v_j)
+
+                violated_constraints = self.get_violated_constraints(sol)
+        return population
 
     def tournament_selection(self, population: [([], int)], k):
         selected_individuals = []
@@ -692,11 +725,18 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
     def partially_matched_crossover(self, top: [([], int)], rest: [([], int)], size: int, crossover_range: int,
                                     penalize_factor: float):
         children: [([], int)] = []
-        for i in range(int(size/2)):
+        for i in range(int(size / 2)):
             # select 2 parents A and B
             (parent_a, obj_parent_a) = random.choice(top)
             (parent_b, obj_parent_b) = random.choice(rest)
-            crossover_start = random.randint(0, len(parent_a) - 1 - crossover_range)
+            crossover_start = 6#random.randint(0, len(parent_a) - 1 - crossover_range)
+
+            # TODO delete
+            if self.has_duplicates(parent_a):
+                print("Duplicates found!")
+            if self.has_duplicates(parent_b):
+                print("Duplicates found!")
+            # TODO end
 
             # create children
             children_a = list.copy(parent_a)
@@ -705,32 +745,45 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
             # For all genes in the crossover range:
             a_map_to: dict = {}
             b_map_to: dict = {}
+            crossover_list_a = []
+            crossover_list_b = []
+
             for j in range(crossover_start, crossover_start + crossover_range):
                 # Swap the genes within the crossover range
                 a_map_to[parent_b[j]] = children_a[j]
                 children_a[j] = parent_b[j]
+                crossover_list_a.append(children_a[j])
 
                 b_map_to[parent_a[j]] = children_b[j]
                 children_b[j] = parent_a[j]
+                crossover_list_b.append(children_b[j])
 
             # Swap variables outside the crossover range with the old variables inside the crossover range.
-            for j in range(0, crossover_start):
+            outside_left = range(0, crossover_start)
+            outside_right = range(crossover_start + crossover_range, len(parent_a))
+            for j in chain(outside_left, outside_right):
                 gene_a = children_a[j]
                 if gene_a in a_map_to:
-                    children_a[j] = a_map_to[gene_a]
+                    repl_gene_a = a_map_to[gene_a]
+                    while repl_gene_a in crossover_list_a:
+                        # The gene is in the crossover list, we have to look what this should be replaced with
+                        repl_gene_a = a_map_to[repl_gene_a]
+
+                    children_a[j] = repl_gene_a
 
                 gene_b = children_b[j]
                 if gene_b in b_map_to:
-                    children_b[j] = b_map_to[gene_b]
+                    repl_gene_b = b_map_to[gene_b]
+                    while repl_gene_b in crossover_list_b:
+                        # The gene is in the crossover list, we have to look what this should be replaced with
+                        repl_gene_b = b_map_to[repl_gene_b]
 
-            for j in range(crossover_start + crossover_range, len(parent_a)):
-                gene_a = children_a[j]
-                if gene_a in a_map_to:
-                    children_a[j] = a_map_to[gene_a]
+                    children_b[j] = repl_gene_b
 
-                gene_b = children_b[j]
-                if gene_b in b_map_to:
-                    children_b[j] = b_map_to[gene_b]
+            if self.has_duplicates(children_a):
+                print("Duplicates found!")
+            if self.has_duplicates(children_b):
+                print("Duplicates found!")
 
             # Calculate fitness of children (i.e. obj function)
             obj_a = obj_huge

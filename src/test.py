@@ -587,6 +587,25 @@ class GeneticAlgorithm(unittest.TestCase):
 
         print("Valid solution: " + str(mwccp_solution.is_valid_solution(children[0][0])))
         print("Valid solution: " + str(mwccp_solution.is_valid_solution(children[1][0])))
+        assert not mwccp_solution.has_duplicates(children[0][0])
+        assert not mwccp_solution.has_duplicates(children[1][0])
+        print(children)
+
+    def test_partially_matched_crossover_problem(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        sol_1, obj_1, _ = ([42, 37, 28, 49, 36, 27, 44, 30, 39, 47, 40, 35, 43, 41, 26, 46, 48, 50, 31, 29, 45, 34, 32, 33, 38], 1, None)
+        sol_2, obj_2, _ = ([42, 28, 40, 32, 36, 27, 30, 39, 31, 48, 33, 35, 43, 47, 26, 46, 37, 45, 41, 34, 29, 38, 44, 49, 50], 2, None)
+
+        top = [(sol_1, obj_1)]
+        rest = [(sol_2, obj_2)]
+        children = mwccp_solution.partially_matched_crossover(top, rest, 2, 3, 1.5)
+
+        print("Valid solution: " + str(mwccp_solution.is_valid_solution(children[0][0])))
+        print("Valid solution: " + str(mwccp_solution.is_valid_solution(children[1][0])))
+        assert not mwccp_solution.has_duplicates(children[0][0])
+        assert not mwccp_solution.has_duplicates(children[1][0])
         print(children)
 
     def test_insertion_mutation(self):
@@ -605,11 +624,37 @@ class GeneticAlgorithm(unittest.TestCase):
         sol_2, obj_2, _ = mwccp_solution.randomized_construction_heuristic()
 
         test_population = [(sol_1, obj_1), (sol_2, obj_2)]
-        mutated_population = mwccp_solution.insertion_mutation(test_population, 0.05, 1.2)
+        mutated_population = mwccp_solution.insertion_mutation(test_population, 0.5, 1.2)
 
         print("Valid solution: " + str(mwccp_solution.is_valid_solution(mutated_population[0][0])))
         print("Valid solution: " + str(mwccp_solution.is_valid_solution(mutated_population[1][0])))
+        assert not mwccp_solution.has_duplicates(mutated_population[0][0])
+        assert not mwccp_solution.has_duplicates(mutated_population[1][0])
         print(mutated_population)
+
+    def test_repair_small(self):
+        mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
+        mwccp_solution = MWCCPSolution(mwccp_instance)
+
+        sol_1, obj_1, _ = mwccp_solution.randomized_construction_heuristic()
+        sol_2, obj_2, _ = mwccp_solution.randomized_construction_heuristic()
+
+        top = [(sol_1, obj_1)]
+        rest = [(sol_2, obj_2)]
+        children = mwccp_solution.partially_matched_crossover(top, rest, 2, 3, 1.5)
+
+        print("=== After partially_matched_crossover ===")
+        print("Valid solution: " + str(mwccp_solution.is_valid_solution(children[0][0])))
+        print("Valid solution: " + str(mwccp_solution.is_valid_solution(children[1][0])))
+        print(children)
+        print("=== === === === === === === === === === ===")
+
+        repaired_population = mwccp_solution.repair(children, 1)
+        print("=== After repair ===")
+        print("Valid solution: " + str(mwccp_solution.is_valid_solution(repaired_population[0][0])))
+        print("Valid solution: " + str(mwccp_solution.is_valid_solution(repaired_population[1][0])))
+        print(repaired_population)
+        print("=== === === === === ===")
 
     def test_replacement_brkga(self):
         mwccp_instance = read_instance("../data/test_instances/small/inst_50_4_00002")
