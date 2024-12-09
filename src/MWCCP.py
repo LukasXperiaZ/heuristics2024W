@@ -143,7 +143,7 @@ class MWCCPInstance:
 
         # Create an n x n matrix initialized with zeros
         # ( Note that we create a (n+1 + n+1) x (n+1) matrix since we leave the zero row and column empty.
-        #   Furthermore, the vertices v start from n+1, therefore the rows 1..n are empty)
+        #   Furthermore, the vertices v start from n+1, therefore the rows 1...n are empty)
         adj_matrix = np.zeros(((n + 1) + (n + 1), n + 1), dtype=int)
 
         # Create a dictionary for fast lookup of vertex indices
@@ -624,6 +624,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                         candidates to be paired with the TOP candidates. This way, it is also possible that two parents
                         are from the TOP group.
 
+        :param randomized_const_heuristic_initialization: The randomized construction heuristic used for the initialization of the population.
         :param repair_percentage: The percentage of mid-solutions (from the crossover) that will be repaired.
         :param bot_population: Percentage of the bot population that is randomly generated in every iteration
         :param elitist_population: The percentage of the population that is considered to be the elite.

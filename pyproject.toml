@@ -6,7 +6,7 @@ authors = ["Lukas <e11911069@student.tuwien.ac.at>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 pymhlib = "^0.1.5"
 smac = "^2.2.0"
 
