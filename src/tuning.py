@@ -81,10 +81,10 @@ class Tuning(unittest.TestCase):
         self.run_genetic_algorithm_test("Genetic Algorithm Small", 25)
 
     def test_tune_genetic_algorithm_medium(self):
-        self.run_genetic_algorithm_test("Genetic Algorithm Medium", 99)
+        self.run_genetic_algorithm_test("Genetic Algorithm Medium", 100)
 
     def test_tune_genetic_algorithm_large(self):
-        self.run_genetic_algorithm_test("Genetic Algorithm Large", 499)
+        self.run_genetic_algorithm_test("Genetic Algorithm Large", 500)
 
     def run_genetic_algorithm_test(self, scenario_name, solution_size):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
