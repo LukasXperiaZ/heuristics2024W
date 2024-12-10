@@ -508,7 +508,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         return solution, obj, stats
 
     def vnd(self, neighborhoods: [MWCCPNeighborhoods], step_function: StepFunction, max_iterations: int = -1,
-            max_time_in_s: int = -1, initial_sol: ([], int) = None):
+            max_time_in_s: float = -1, initial_sol: ([], int) = None):
         if initial_sol is None:
             # Get the initial solution from the DCH
             sol, obj, _ = self.deterministic_construction_heuristic()
@@ -711,23 +711,23 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
                                    repair_percentage: float = 0.5,
                                    penalize_factor: float = 1.5,
                                    vnd_percentage: float = 0.5,
-                                   vnd_max_runtime_in_s: int = 0.01,
+                                   vnd_max_runtime_in_s: float = 0.05,
                                    vnd_neighborhoods: [MWCCPNeighborhoods] = None,
                                    step_function: StepFunction = StepFunction.first_improvement,
-                                   vnd_randomized_const_heuristic: str = "standard",
+                                   vnd_randomized_const_heuristic: str = "random_and_repair",
                                    max_iterations: int = -1,
                                    max_time_in_s: int = 10):
         """
         Hybrid approach that combines the genetic algorithm with VND.
         VND is used at the end of an iteration of the genetic algorithm on a random portion (on a part) of the population.
 
-        :param randomized_const_heuristic_initialization: The randomized CH for the initialization phase
         :param vnd_randomized_const_heuristic: randomized construction heuristic that should be used for the BOT individuals.
         :param step_function: Stepfunction of VND
         :param vnd_neighborhoods: The neighborhoods that VND will use
         :param vnd_max_runtime_in_s: Maximal runtime of VND on one instance
         :param vnd_percentage: The percentage of the population to which vnd should be applied.
 
+        :param randomized_const_heuristic_initialization: The randomized CH for the initialization phase
         :param repair_percentage: The percentage of mid-solutions (from the crossover) that will be repaired.
         :param bot_population: Percentage of the bot population that is randomly generated in every iteration
         :param elitist_population: The percentage of the population that is considered to be the elite.
@@ -960,7 +960,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
     def replacement_brkga_with_VND(self, top: [([], int)], mid: [([], int)], population_size: int,
                                    vnd_percentage: float,
                                    vnd_neighborhoods, step_function, vnd_randomized_const_heuristic,
-                                   vnd_max_runtime_in_s):
+                                   vnd_max_runtime_in_s: float):
         new_population = []
 
         # Append top and mid-solutions
