@@ -1,0 +1,1286 @@
+{
+  "type": "Scheduler",
+  "id": "Scheduler-fba38aca-af3d-4260-a4d6-10e93eeeb12f",
+  "address": "tcp://127.0.0.1:46157",
+  "services": {
+    "dashboard": 8787
+  },
+  "started": 1733842743.196098,
+  "workers": {
+    "tcp://127.0.0.1:33461": {
+      "type": "Worker",
+      "id": 1,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-ih6mzpxi",
+      "name": 1,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.5601149,
+      "services": {
+        "dashboard": 42349
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.04963326454162598,
+          "tick-duration": 0.9815268516540527
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 3.2,
+        "memory": 104931328,
+        "time": 1733842752.058354,
+        "host_net_io": {
+          "read_bps": 80263.27603656737,
+          "write_bps": 80263.27603656737
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:42913"
+    },
+    "tcp://127.0.0.1:34323": {
+      "type": "Worker",
+      "id": 12,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-zn6t9f_s",
+      "name": 12,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.8167815,
+      "services": {
+        "dashboard": 37203
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.03167319297790527,
+          "tick-duration": 0.981144905090332
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 3.5,
+        "memory": 102797312,
+        "time": 1733842752.3155437,
+        "host_net_io": {
+          "read_bps": 46044.3938655256,
+          "write_bps": 46044.3938655256
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:44627"
+    },
+    "tcp://127.0.0.1:34447": {
+      "type": "Worker",
+      "id": 14,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-_3wmmy77",
+      "name": 14,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.816636,
+      "services": {
+        "dashboard": 32887
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.03331112861633301,
+          "tick-duration": 0.9818382263183594
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 3.5,
+        "memory": 102658048,
+        "time": 1733842752.3156621,
+        "host_net_io": {
+          "read_bps": 45717.76384254868,
+          "write_bps": 45717.76384254868
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:34069"
+    },
+    "tcp://127.0.0.1:35587": {
+      "type": "Worker",
+      "id": 7,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-_u0fsb05",
+      "name": 7,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.7267113,
+      "services": {
+        "dashboard": 38383
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.043845415115356445,
+          "tick-duration": 0.9810774326324463
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 4.7,
+        "memory": 102629376,
+        "time": 1733842752.224684,
+        "host_net_io": {
+          "read_bps": 56481.541010914916,
+          "write_bps": 56481.541010914916
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:41073"
+    },
+    "tcp://127.0.0.1:35699": {
+      "type": "Worker",
+      "id": 20,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-uag08wfp",
+      "name": 20,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.5984504,
+      "services": {
+        "dashboard": 39905
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {},
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 0.0,
+        "memory": 101568512,
+        "time": 1733842752.5429792,
+        "host_net_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 17
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:39233"
+    },
+    "tcp://127.0.0.1:36919": {
+      "type": "Worker",
+      "id": 0,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-gh0chrm2",
+      "name": 0,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.6789505,
+      "services": {
+        "dashboard": 35709
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.0454709529876709,
+          "tick-duration": 0.9803256988525391
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 1.6,
+        "memory": 102940672,
+        "time": 1733842752.1777537,
+        "host_net_io": {
+          "read_bps": 77337.2041987,
+          "write_bps": 77337.2041987
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:41473"
+    },
+    "tcp://127.0.0.1:37807": {
+      "type": "Worker",
+      "id": 19,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-ymcxrrjj",
+      "name": 19,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.3109138,
+      "services": {
+        "dashboard": 36509
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {},
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 0.0,
+        "memory": 102154240,
+        "time": 1733842752.2417643,
+        "host_net_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 17
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:41433"
+    },
+    "tcp://127.0.0.1:38723": {
+      "type": "Worker",
+      "id": 9,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-oizb5o1o",
+      "name": 9,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.7960246,
+      "services": {
+        "dashboard": 36855
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.03751230239868164,
+          "tick-duration": 0.9804244041442871
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 4.8,
+        "memory": 104435712,
+        "time": 1733842752.2948174,
+        "host_net_io": {
+          "read_bps": 46254.08300981591,
+          "write_bps": 46254.08300981591
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:34217"
+    },
+    "tcp://127.0.0.1:38749": {
+      "type": "Worker",
+      "id": 23,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-gh6ltvfe",
+      "name": 23,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.750654,
+      "services": {
+        "dashboard": 32775
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.0471649169921875,
+          "tick-duration": 0.9801793098449707
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 3.2,
+        "memory": 102637568,
+        "time": 1733842752.2497196,
+        "host_net_io": {
+          "read_bps": 53063.265889322254,
+          "write_bps": 53063.265889322254
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:44943"
+    },
+    "tcp://127.0.0.1:39155": {
+      "type": "Worker",
+      "id": 13,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-biq7vd83",
+      "name": 13,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.4910731,
+      "services": {
+        "dashboard": 46497
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {},
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 0.0,
+        "memory": 101842944,
+        "time": 1733842752.4351368,
+        "host_net_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 17
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:41153"
+    },
+    "tcp://127.0.0.1:39257": {
+      "type": "Worker",
+      "id": 2,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-cwn0_p_y",
+      "name": 2,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.5641427,
+      "services": {
+        "dashboard": 34753
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.05360865592956543,
+          "tick-duration": 0.9807560443878174
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 3.2,
+        "memory": 102584320,
+        "time": 1733842752.0627213,
+        "host_net_io": {
+          "read_bps": 83547.99240398599,
+          "write_bps": 83547.99240398599
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:34285"
+    },
+    "tcp://127.0.0.1:39441": {
+      "type": "Worker",
+      "id": 16,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-dn4uzm2h",
+      "name": 16,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.8381534,
+      "services": {
+        "dashboard": 40609
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.02773571014404297,
+          "tick-duration": 0.9817290306091309
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 3.4,
+        "memory": 102334464,
+        "time": 1733842752.3352873,
+        "host_net_io": {
+          "read_bps": 43196.44269941768,
+          "write_bps": 43196.44269941768
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:46199"
+    },
+    "tcp://127.0.0.1:39619": {
+      "type": "Worker",
+      "id": 6,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-r1x90l0t",
+      "name": 6,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.6536112,
+      "services": {
+        "dashboard": 33309
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.04546475410461426,
+          "tick-duration": 0.9809553623199463
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 3.1,
+        "memory": 102588416,
+        "time": 1733842752.1520295,
+        "host_net_io": {
+          "read_bps": 76236.65016197102,
+          "write_bps": 76236.65016197102
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:41159"
+    },
+    "tcp://127.0.0.1:40857": {
+      "type": "Worker",
+      "id": 21,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-q59e5g63",
+      "name": 21,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.084021,
+      "services": {
+        "dashboard": 36297
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {},
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 0.0,
+        "memory": 101793792,
+        "time": 1733842752.016194,
+        "host_net_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 17
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:34247"
+    },
+    "tcp://127.0.0.1:42641": {
+      "type": "Worker",
+      "id": 18,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-q21k3uc7",
+      "name": 18,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.569007,
+      "services": {
+        "dashboard": 32827
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.07285809516906738,
+          "tick-duration": 0.9815101623535156
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 3.1,
+        "memory": 104615936,
+        "time": 1733842752.0669165,
+        "host_net_io": {
+          "read_bps": 82675.93408905074,
+          "write_bps": 82675.93408905074
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:41793"
+    },
+    "tcp://127.0.0.1:42769": {
+      "type": "Worker",
+      "id": 15,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-5ywumpd7",
+      "name": 15,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.0609372,
+      "services": {
+        "dashboard": 42887
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {},
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 0.0,
+        "memory": 102080512,
+        "time": 1733842751.9851685,
+        "host_net_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 17
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:33337"
+    },
+    "tcp://127.0.0.1:42783": {
+      "type": "Worker",
+      "id": 11,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-8_34wbp8",
+      "name": 11,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.505302,
+      "services": {
+        "dashboard": 44247
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.09362983703613281,
+          "tick-duration": 0.9811661243438721
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 4.4,
+        "memory": 104894464,
+        "time": 1733842752.0028095,
+        "host_net_io": {
+          "read_bps": 75021.84391102527,
+          "write_bps": 75021.84391102527
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:44411"
+    },
+    "tcp://127.0.0.1:43243": {
+      "type": "Worker",
+      "id": 8,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-90ldr6rs",
+      "name": 8,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.5659986,
+      "services": {
+        "dashboard": 35187
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.07222676277160645,
+          "tick-duration": 0.9803154468536377
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 4.7,
+        "memory": 102572032,
+        "time": 1733842752.0659747,
+        "host_net_io": {
+          "read_bps": 83049.55832222204,
+          "write_bps": 83049.55832222204
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:37559"
+    },
+    "tcp://127.0.0.1:43935": {
+      "type": "Worker",
+      "id": 4,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-s3wlpox5",
+      "name": 4,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.5075858,
+      "services": {
+        "dashboard": 39521
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.0972752571105957,
+          "tick-duration": 0.9810934066772461
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 2.9,
+        "memory": 102621184,
+        "time": 1733842752.0053134,
+        "host_net_io": {
+          "read_bps": 75234.39525165789,
+          "write_bps": 75234.39525165789
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:39097"
+    },
+    "tcp://127.0.0.1:44453": {
+      "type": "Worker",
+      "id": 10,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-sc_0aw6y",
+      "name": 10,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.62941,
+      "services": {
+        "dashboard": 42125
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.05054974555969238,
+          "tick-duration": 0.9803943634033203
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 4.6,
+        "memory": 102621184,
+        "time": 1733842752.127647,
+        "host_net_io": {
+          "read_bps": 81428.75779726308,
+          "write_bps": 81428.75779726308
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:41799"
+    },
+    "tcp://127.0.0.1:45897": {
+      "type": "Worker",
+      "id": 3,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-2us3wjxy",
+      "name": 3,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.5619707,
+      "services": {
+        "dashboard": 33283
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.06737732887268066,
+          "tick-duration": 0.9811074733734131
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 3.1,
+        "memory": 102711296,
+        "time": 1733842752.0605512,
+        "host_net_io": {
+          "read_bps": 80225.06899756809,
+          "write_bps": 80225.06899756809
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:43995"
+    },
+    "tcp://127.0.0.1:46241": {
+      "type": "Worker",
+      "id": 22,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-kl7maluu",
+      "name": 22,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.612188,
+      "services": {
+        "dashboard": 40441
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {},
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 0.0,
+        "memory": 102096896,
+        "time": 1733842752.5652897,
+        "host_net_io": {
+          "read_bps": 624854.9170611191,
+          "write_bps": 624854.9170611191
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 17
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:43685"
+    },
+    "tcp://127.0.0.1:46421": {
+      "type": "Worker",
+      "id": 17,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-x1a68f4k",
+      "name": 17,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.9571462,
+      "services": {
+        "dashboard": 37579
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {},
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 0.0,
+        "memory": 101998592,
+        "time": 1733842752.9112551,
+        "host_net_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 17
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:40921"
+    },
+    "tcp://127.0.0.1:46727": {
+      "type": "Worker",
+      "id": 5,
+      "host": "127.0.0.1",
+      "resources": {},
+      "local_directory": "/mnt/c/Users/Anwender/PycharmProjects/heuristics2024W/src/smac3_output/Genetic Algorithm Small/0/dask-scratch-space/worker-q91bxtjw",
+      "name": 5,
+      "nthreads": 1,
+      "memory_limit": 1398529706,
+      "last_seen": 1733842752.8136175,
+      "services": {
+        "dashboard": 46777
+      },
+      "metrics": {
+        "task_counts": {},
+        "bandwidth": {
+          "total": 100000000,
+          "workers": {},
+          "types": {}
+        },
+        "digests_total_since_heartbeat": {
+          "latency": 0.0290679931640625,
+          "tick-duration": 0.9819765090942383
+        },
+        "managed_bytes": 0,
+        "spilled_bytes": {
+          "memory": 0,
+          "disk": 0
+        },
+        "transfer": {
+          "incoming_bytes": 0,
+          "incoming_count": 0,
+          "incoming_count_total": 0,
+          "outgoing_bytes": 0,
+          "outgoing_count": 0,
+          "outgoing_count_total": 0
+        },
+        "event_loop_interval": 0.02,
+        "cpu": 3.5,
+        "memory": 102666240,
+        "time": 1733842752.3128786,
+        "host_net_io": {
+          "read_bps": 44979.05381978778,
+          "write_bps": 44979.05381978778
+        },
+        "host_disk_io": {
+          "read_bps": 0.0,
+          "write_bps": 0.0
+        },
+        "num_fds": 18
+      },
+      "status": "running",
+      "nanny": "tcp://127.0.0.1:33919"
+    }
+  }
+}

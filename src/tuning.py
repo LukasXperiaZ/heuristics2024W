@@ -22,15 +22,16 @@ def evaluate_genetic_algorithm_small(params, seed):
 def evaluate_genetic_algorithm_medium(params, seed):
     random.seed(seed)
     directory = "../data/tuning/tuning/medium/"
-    values_to_normalize = [22498113.2, 7972404.6, 3996357.8, 2255912.6, 1537340.8, 1095402.2, 818517.4, 596553.4, 466588.6, 371635.8]
+    values_to_normalize = [22498113.2, 7972404.6, 3996357.8, 2255912.6, 1537340.8, 1095402.2, 818517.4, 596553.4,
+                           466588.6, 371635.8]
     return evaluate_genetic_algorithm(params, directory, values_to_normalize)
 
 
 def evaluate_genetic_algorithm_large(params, seed):
     random.seed(seed)
     directory = "../data/tuning/tuning/large/"
-    values_to_normalize = [80230.0, 21215.6, 11434.4, 6112.0, 4458.8, 2934.8, 2416.2, 1904.0, 1113.0,
-                           719.2]  # TODO change
+    values_to_normalize = [14727208525.6, 5317437510.2, 2689732309.0, 1616581844.4, 1061879453.6, 750038288.2,
+                           568421573.2, 442069617.0, 354454608.0, 288258956.0]
     return evaluate_genetic_algorithm(params, directory, values_to_normalize)
 
 
@@ -67,12 +68,12 @@ def evaluate_genetic_algorithm(params, directory, values_to_normalize: [float]):
         mean_val_inst = np.mean(obj_values_inst)
         obj_values.append(mean_val_inst)
 
-    print("Objective values:")
-    print(obj_values)
+    # print("Objective values:")
+    # print(obj_values)
     obj_values = np.array(obj_values)
     normalized_obj_values = (obj_values / np.array(values_to_normalize))
-    print("Normalized Objective values:")
-    print(normalized_obj_values)
+    # print("Normalized Objective values:")
+    # print(normalized_obj_values)
     mean_normalized_value = np.mean(normalized_obj_values)
 
     return mean_normalized_value
@@ -121,6 +122,7 @@ class Tuning(unittest.TestCase):
             "penalize_factor": 1.5,
         }, 0)
 
+    # -------------------- Functions (test cases) used for tuning --------------------
     def test_tune_genetic_algorithm_small(self):
         self.run_genetic_algorithm_test("Genetic Algorithm Small", 25)
 
@@ -175,3 +177,4 @@ class Tuning(unittest.TestCase):
         incumbent = smac.optimize()
         print("Best found configuration:")
         print(incumbent)
+    # -------------------- -------------------- -------------------- --------------------
