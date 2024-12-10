@@ -118,6 +118,9 @@ class MWCCPInstance:
                 self.pre_comp_val = pre_compute_values
         except FileNotFoundError:
             return False
+        except Exception as e:
+            print(e)
+            return False
 
         return True
 

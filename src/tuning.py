@@ -14,28 +14,27 @@ from src.read_instance import read_instance
 
 def evaluate_genetic_algorithm_small(params, seed):
     random.seed(seed)
-
     directory = "../data/tuning/tuning/small/"
-
-    return evaluate_genetic_algorithm(params, directory)
+    values_to_normalize = [80230.0, 21215.6, 11434.4, 6112.0, 4458.8, 2934.8, 2416.2, 1904.0, 1113.0, 719.2]
+    return evaluate_genetic_algorithm(params, directory, values_to_normalize)
 
 
 def evaluate_genetic_algorithm_medium(params, seed):
     random.seed(seed)
-
     directory = "../data/tuning/tuning/medium/"
-
-    return evaluate_genetic_algorithm(params, directory)
+    values_to_normalize = [22498113.2, 7972404.6, 3996357.8, 2255912.6, 1537340.8, 1095402.2, 818517.4, 596553.4, 466588.6, 371635.8]
+    return evaluate_genetic_algorithm(params, directory, values_to_normalize)
 
 
 def evaluate_genetic_algorithm_large(params, seed):
     random.seed(seed)
-
     directory = "../data/tuning/tuning/large/"
-    return evaluate_genetic_algorithm(params, directory)
+    values_to_normalize = [80230.0, 21215.6, 11434.4, 6112.0, 4458.8, 2934.8, 2416.2, 1904.0, 1113.0,
+                           719.2]  # TODO change
+    return evaluate_genetic_algorithm(params, directory, values_to_normalize)
 
 
-def evaluate_genetic_algorithm(params, directory):
+def evaluate_genetic_algorithm(params, directory, values_to_normalize: [float]):
     repetitions = 5
 
     mwccp_solutions: [MWCCPSolution] = []
@@ -68,15 +67,60 @@ def evaluate_genetic_algorithm(params, directory):
         mean_val_inst = np.mean(obj_values_inst)
         obj_values.append(mean_val_inst)
 
+    print("Objective values:")
+    print(obj_values)
     obj_values = np.array(obj_values)
-    normalized_obj_value = (obj_values - np.min(obj_values)) / (
-            np.max(obj_values) - np.min(obj_values) + 1)  # Problem with division by 0 -> +1
-    mean_normalized_value = np.mean(normalized_obj_value)
+    normalized_obj_values = (obj_values / np.array(values_to_normalize))
+    print("Normalized Objective values:")
+    print(normalized_obj_values)
+    mean_normalized_value = np.mean(normalized_obj_values)
 
     return mean_normalized_value
 
 
 class Tuning(unittest.TestCase):
+    def test_evaluate_genetic_algorithm_small(self):
+        print("Starting ...")
+        evaluate_genetic_algorithm_small({
+            "population_size": 100,
+            "randomized_const_heuristic_initialization": "random and repair",
+            "elitist_population": 0.2,
+            "bot_population": 0.2,
+            "k": 10,
+            "crossover_range": 5,
+            "mutation_prob": 0.05,
+            "repair_percentage": 0.5,
+            "penalize_factor": 1.5,
+        }, 0)
+
+    def test_evaluate_genetic_algorithm_medium(self):
+        print("Starting ...")
+        evaluate_genetic_algorithm_medium({
+            "population_size": 100,
+            "randomized_const_heuristic_initialization": "random and repair",
+            "elitist_population": 0.2,
+            "bot_population": 0.2,
+            "k": 10,
+            "crossover_range": 5,
+            "mutation_prob": 0.05,
+            "repair_percentage": 0.5,
+            "penalize_factor": 1.5,
+        }, 0)
+
+    def test_evaluate_genetic_algorithm_large(self):
+        print("Starting ...")
+        evaluate_genetic_algorithm_large({
+            "population_size": 100,
+            "randomized_const_heuristic_initialization": "random and repair",
+            "elitist_population": 0.2,
+            "bot_population": 0.2,
+            "k": 10,
+            "crossover_range": 5,
+            "mutation_prob": 0.05,
+            "repair_percentage": 0.5,
+            "penalize_factor": 1.5,
+        }, 0)
+
     def test_tune_genetic_algorithm_small(self):
         self.run_genetic_algorithm_test("Genetic Algorithm Small", 25)
 
