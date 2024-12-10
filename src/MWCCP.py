@@ -651,21 +651,28 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         obj_over_time: [ObjIter] = []
 
         i = 0
-        start = time.time()
 
         # initialize and evaluate P(t)
         # population is an array of solution-objective tuples, e.g. [([1,2,3], 9), ...]
         population: [([], int)] = []
         for j in range(population_size):
+            # init_start = time.time()
             if randomized_const_heuristic_initialization == "standard":
                 sol, obj, _ = self.randomized_construction_heuristic()
             else:
                 sol, obj = self.randomized_construction_heuristic_random_and_repair()
             population.append((sol, obj))
+            # init_end = time.time()
+            # print("Time for initialization of 1 individual: " + str(init_end - init_start) + "s")
 
         population.sort(key=lambda x: x[1])
 
         obj_over_time.append(ObjIter(population[0][1], i))
+
+        # Start the time here as the initialization could take more than e.g. 1 second
+        # -> Then the algorithm would not even do 1 iteration.
+        # E.g. for large instances and a population size of 100, it takes ~5 seconds to do the initialization.
+        start = time.time()
 
         while i <= max_iterations or time.time() - start < max_time_in_s:
             i += 1
@@ -757,7 +764,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
         obj_over_time: [ObjIter] = []
 
         i = 0
-        start = time.time()
+
 
         # initialize and evaluate P(t)
         # population is an array of solution-objective tuples, e.g. [([1,2,3], 9), ...]
@@ -773,6 +780,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
         obj_over_time.append(ObjIter(population[0][1], i))
 
+        start = time.time()
         while i <= max_iterations or time.time() - start < max_time_in_s:
             i += 1
 
@@ -802,6 +810,7 @@ class MWCCPSolution(VectorSolution, LocalSearchSolution):
 
             obj_over_time.append(ObjIter(population[0][1], i))
         end = time.time()
+        #print("Number of iterations: {}".format(i))
 
         stats = Stats(title="Genetic Algorithm", start_time=start, end_time=end,
                       iterations=i,

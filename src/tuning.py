@@ -83,15 +83,15 @@ def evaluate_genetic_algorithm(params, directory, values_to_normalize: [float]):
 def evaluate_hybrid_algorithm_small(params, seed):
     random.seed(seed)
     directory = "../data/tuning/tuning/small/"
-    values_to_normalize = [80230.0, 21213.0, 11432.0, 6114.0, 4449.6, 2933.4, 2421.4, 1904.0, 1113.0, 719.0]
+    values_to_normalize = [80230.0, 21213.0, 11432.0, 6112.0, 4445.4, 2933.0, 2417.8, 1904.2, 1113.0, 719.0]
     return evaluate_hybrid_algorithm(params, directory, values_to_normalize)
 
 
 def evaluate_hybrid_algorithm_medium(params, seed):
     random.seed(seed)
     directory = "../data/tuning/tuning/medium/"
-    values_to_normalize = [22840039.8, 8056722.4, 4112186.4, 2351995.2, 1606639.6, 1137421.0, 866877.8, 631965.0,
-                           498321.2, 407110.2]
+    values_to_normalize = [22838464.2, 8048093.0, 4126629.6, 2345240.2, 1605810.6, 1134458.6, 862697.2, 631232.4,
+                           496779.8, 405854.8]
     return evaluate_hybrid_algorithm(params, directory, values_to_normalize)
 
 
@@ -105,6 +105,23 @@ def evaluate_hybrid_algorithm_large(params, seed):
 
 def evaluate_hybrid_algorithm(params, directory, values_to_normalize: [float]):
     repetitions = 5
+
+    if params["step_function"] == "first":
+        step_function = StepFunction.first_improvement
+    elif params["step_function"] == "best":
+        step_function = StepFunction.best_improvement
+    else:
+        step_function = StepFunction.random
+
+    neighborhoods_numbers = params["vnd_neighborhoods"]
+    neighborhood = []
+    for neighbor in neighborhoods_numbers:
+        if neighbor == 2:
+            neighborhood.append(MWCCPNeighborhoods.flip_two_adjacent_vertices)
+        elif neighbor == 3:
+            neighborhood.append(MWCCPNeighborhoods.flip_three_adjacent_vertices)
+        else:
+            neighborhood.append(MWCCPNeighborhoods.flip_four_adjacent_vertices)
 
     mwccp_solutions: [MWCCPSolution] = []
     for test in os.listdir(directory):
@@ -121,7 +138,7 @@ def evaluate_hybrid_algorithm(params, directory, values_to_normalize: [float]):
         for rep in range(repetitions):
             _, stats = mwccp_solution.genetic_algorithm_with_vnd(
                 population_size=params["population_size"],
-                randomized_const_heuristic_initialization=params["randomized_const_heuristic_initialization"],
+                randomized_const_heuristic_initialization="random_and_repair",
                 elitist_population=params["elitist_population"],
                 bot_population=params["bot_population"],
                 k=params["k"],
@@ -131,8 +148,9 @@ def evaluate_hybrid_algorithm(params, directory, values_to_normalize: [float]):
                 penalize_factor=params["penalize_factor"],
                 vnd_percentage=params["vnd_percentage"],
                 vnd_max_runtime_in_s=params["vnd_max_runtime_in_s"],
-                step_function=params["step_function"],
-                vnd_randomized_const_heuristic=params["vnd_randomized_const_heuristic"],
+                vnd_neighborhoods=neighborhood,
+                step_function=step_function,
+                vnd_randomized_const_heuristic="random_and_repair",
                 max_time_in_s=1,
             )
             obj_values_inst.append(stats.get_final_objective())
@@ -140,12 +158,12 @@ def evaluate_hybrid_algorithm(params, directory, values_to_normalize: [float]):
         mean_val_inst = np.mean(obj_values_inst)
         obj_values.append(mean_val_inst)
 
-    print("Objective values:")
-    print(obj_values)
+    #print("Objective values:")
+    #print(obj_values)
     obj_values = np.array(obj_values)
     normalized_obj_values = (obj_values / np.array(values_to_normalize))
-    print("Normalized Objective values:")
-    print(normalized_obj_values)
+    #print("Normalized Objective values:")
+    #print(normalized_obj_values)
     mean_normalized_value = np.mean(normalized_obj_values)
 
     return mean_normalized_value
@@ -262,24 +280,29 @@ class Tuning(unittest.TestCase):
 
     # -------------------- Functions (test cases) used for tuning --------------------
     def test_tune_genetic_algorithm_small(self):
-        self.run_genetic_algorithm_test("Genetic Algorithm Small", 25)
+        self.run_genetic_algorithm_test("Genetic Algorithm Small", 25, 200)
 
     def test_tune_genetic_algorithm_medium(self):
-        self.run_genetic_algorithm_test("Genetic Algorithm Medium", 100)
+        self.run_genetic_algorithm_test("Genetic Algorithm Medium", 100, 200)
 
     def test_tune_genetic_algorithm_large(self):
-        self.run_genetic_algorithm_test("Genetic Algorithm Large", 500)
+        self.run_genetic_algorithm_test("Genetic Algorithm Large", 500, 50, only_fast_RCH=True)
 
-    def run_genetic_algorithm_test(self, scenario_name, solution_size):
+    def run_genetic_algorithm_test(self, scenario_name, solution_size, n_trials, only_fast_RCH: bool = False):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         cs = ConfigurationSpace()
 
         # Hyperparameters
         population_size = UniformIntegerHyperparameter("population_size", lower=50, upper=500, default_value=100)
-        randomized_const_heuristic_initialization = CategoricalHyperparameter(
-            "randomized_const_heuristic_initialization", ["standard", "random_and_repair"],
-            default_value="random_and_repair")
+        if not only_fast_RCH:
+            randomized_const_heuristic_initialization = CategoricalHyperparameter(
+                "randomized_const_heuristic_initialization", ["standard", "random_and_repair"],
+                default_value="random_and_repair")
+        else:
+            randomized_const_heuristic_initialization = CategoricalHyperparameter(
+                "randomized_const_heuristic_initialization", ["random_and_repair"],
+                default_value="random_and_repair")
         elitist_population = UniformFloatHyperparameter("elitist_population", lower=0.1, upper=0.25, default_value=0.2)
         bot_population = UniformFloatHyperparameter("bot_population", lower=0.1, upper=0.3, default_value=0.2)
         k = UniformIntegerHyperparameter("k", lower=1, upper=50, default_value=10)
@@ -297,7 +320,7 @@ class Tuning(unittest.TestCase):
             configspace=cs,
             deterministic=False,
             walltime_limit=60 * 15,  # 15 minutes
-            n_trials=200,
+            n_trials=n_trials,
             n_workers=24,
             seed=0  # for reproducibility
         )
@@ -317,24 +340,21 @@ class Tuning(unittest.TestCase):
         print(incumbent)
 
     def test_tune_hybrid_algorithm_small(self):
-        self.run_hybrid_algorithm_test("Hybrid Algorithm Small", 25)
+        self.run_hybrid_algorithm_test("Hybrid Algorithm Small", 25, 200)
 
     def test_tune_hybrid_algorithm_medium(self):
-        self.run_hybrid_algorithm_test("Hybrid Algorithm Medium", 100)
+        self.run_hybrid_algorithm_test("Hybrid Algorithm Medium", 100, 200)
 
     def test_tune_hybrid_algorithm_large(self):
-        self.run_hybrid_algorithm_test("Hybrid Algorithm Large", 500)
+        self.run_hybrid_algorithm_test("Hybrid Algorithm Large", 500, 20)
 
-    def run_hybrid_algorithm_test(self, scenario_name, solution_size):
+    def run_hybrid_algorithm_test(self, scenario_name, solution_size, n_trials):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
 
         cs = ConfigurationSpace()
 
         # Hyperparameters
         population_size = UniformIntegerHyperparameter("population_size", lower=50, upper=500, default_value=100)
-        randomized_const_heuristic_initialization = CategoricalHyperparameter(
-            "randomized_const_heuristic_initialization", ["standard", "random_and_repair"],
-            default_value="random_and_repair")
         elitist_population = UniformFloatHyperparameter("elitist_population", lower=0.1, upper=0.25, default_value=0.2)
         bot_population = UniformFloatHyperparameter("bot_population", lower=0.1, upper=0.3, default_value=0.2)
         k = UniformIntegerHyperparameter("k", lower=1, upper=50, default_value=10)
@@ -347,37 +367,27 @@ class Tuning(unittest.TestCase):
         vnd_max_runtime_in_s = UniformFloatHyperparameter("vnd_max_runtime_in_s", lower=0.01, upper=1.0,
                                                           default_value=0.05)
         vnd_neighborhoods = CategoricalHyperparameter("vnd_neighborhoods", [
-            [MWCCPNeighborhoods.flip_two_adjacent_vertices],
-            [MWCCPNeighborhoods.flip_three_adjacent_vertices],
-            [MWCCPNeighborhoods.flip_four_adjacent_vertices],
-            [MWCCPNeighborhoods.flip_two_adjacent_vertices, MWCCPNeighborhoods.flip_three_adjacent_vertices],
-            [MWCCPNeighborhoods.flip_three_adjacent_vertices, MWCCPNeighborhoods.flip_four_adjacent_vertices],
-            [
-                MWCCPNeighborhoods.flip_two_adjacent_vertices,
-                MWCCPNeighborhoods.flip_three_adjacent_vertices,
-                MWCCPNeighborhoods.flip_four_adjacent_vertices
-            ]
-        ], default_value=[
-            MWCCPNeighborhoods.flip_two_adjacent_vertices,
-            MWCCPNeighborhoods.flip_three_adjacent_vertices,
-            MWCCPNeighborhoods.flip_four_adjacent_vertices])
+            [2],
+            [3],
+            [4],
+            [2, 3],
+            [3, 4],
+            [2, 3, 4]
+        ], default_value=[2, 3, 4])
         step_function = CategoricalHyperparameter("step_function",
-                                                  [StepFunction.first_improvement, StepFunction.best_improvement,
-                                                   StepFunction.random], default_value=StepFunction.first_improvement)
-        vnd_randomized_const_heuristic = CategoricalHyperparameter("vnd_randomized_const_heuristic",
-                                                                   ["standard", "random_and_repair"],
-                                                                   default_value="random_and_repair")
+                                                  ["first", "best",
+                                                   "random"], default_value="first")
 
-        cs.add(population_size, randomized_const_heuristic_initialization, elitist_population, bot_population, k,
+        cs.add(population_size, elitist_population, bot_population, k,
                crossover_range, mutation_prob, repair_percentage, penalize_factor, vnd_percentage, vnd_max_runtime_in_s,
-               vnd_neighborhoods, step_function, vnd_randomized_const_heuristic)
+               vnd_neighborhoods, step_function)
 
         scenario = Scenario(
             name=scenario_name,
             configspace=cs,
             deterministic=False,
             walltime_limit=60 * 15,  # 15 minutes
-            n_trials=200,
+            n_trials=n_trials,
             n_workers=24,
             seed=0  # for reproducibility
         )
