@@ -346,7 +346,7 @@ class Tuning(unittest.TestCase):
         self.run_hybrid_algorithm_test("Hybrid Algorithm Medium", 100, 200)
 
     def test_tune_hybrid_algorithm_large(self):
-        self.run_hybrid_algorithm_test("Hybrid Algorithm Large", 500, 20)
+        self.run_hybrid_algorithm_test("Hybrid Algorithm Large", 500, 50)
 
     def run_hybrid_algorithm_test(self, scenario_name, solution_size, n_trials):
         warnings.filterwarnings("ignore", category=DeprecationWarning)
